@@ -36,7 +36,8 @@ docker run --rm -d -p 8081:8081 --name sms-service greatlaboratory/sms-service
 
 ```bash
 # docker run gitlab-runner container
-docker run --detach \
+docker run 
+--detach \
 --name gitlab-runner \
 --restart always \
 --volume /srv/gitlab-runner/config:/etc/gitlab-runner: \
