@@ -29,7 +29,7 @@ go tool cover -html=coverage.out
 docker build . -t greatlaboratory/sms-service
 
 # docker run container
-docker run --rm -d -p 8081:8081 --name sms-service greatlaboratory/sms-service
+docker run --rm -d -p 8081:8081 --name --network ai-network sms-service greatlaboratory/sms-service
 ```
 
 ## Gitlab Runner
