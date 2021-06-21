@@ -15,6 +15,9 @@ test:
   stage: test
   script:
     - go test ./...
+  artifacts:
+    paths:
+      - coverage.out
 
 build-go-application:
   image: golang:1.16
