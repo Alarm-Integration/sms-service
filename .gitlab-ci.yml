@@ -1,0 +1,49 @@
+image: docker:19.03.12
+
+stages:
+  - test
+  - build
+  - deploy
+
+variables:
+  CONTAINER_NAME: sms-service
+  ENVIROMENT: staging
+
+test:
+  image: golang:1.16
+  stage: test
+  script:
+    - go test -coverprofile=coverage.out ./...
+  artifacts:
+    paths:
+      - coverage.out
+
+build-go-application:
+  image: golang:1.16
+  stage: build
+  script:
+    - go mod download
+    - go mod verify
+    - go build -o main
+  artifacts:
+    paths:
+      - main
+
+build-docker-image:
+  stage: build
+  script:
+    - docker login -u $DOCKER_HUB_ID -p $DOCKER_HUB_PASSWORD
+    - docker build -t $DOCKER_HUB_ID/$IMAGE_NAME .
+    - docker push $DOCKER_HUB_ID/$IMAGE_NAME
+  environment:
+    name: $ENVIROMENT
+
+deploy:
+  stage: deploy
+  script:
+    - docker pull $DOCKER_HUB_ID/$IMAGE_NAME
+    - docker stop $CONTAINER_NAME || true
+    - docker run --rm -d -p $SMS_SERVICE_PORT:$SMS_SERVICE_PORT --network $DOCKER_NETWORK --name $CONTAINER_NAME $DOCKER_HUB_ID/$IMAGE_NAME
+  environment:
+    name: $ENVIROMENT
+    url: $STAGING_SERVER
