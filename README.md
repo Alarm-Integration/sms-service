@@ -14,7 +14,6 @@ go test -cover ./...
 # run test including coverage measurement
 go test -coverprofile=coverage.out ./...
 
-
 # measure test coverage by using each function
 go tool cover -func=coverage.out
 
@@ -29,7 +28,7 @@ go tool cover -html=coverage.out
 docker build . -t greatlaboratory/sms-service
 
 # docker run container
-docker run --rm -d -p 8081:8081 --name --network ai-network sms-service greatlaboratory/sms-service
+docker run --rm -d -p 8081:8081 --name sms-service --network ai-network greatlaboratory/sms-service
 ```
 
 ## Gitlab Runner
