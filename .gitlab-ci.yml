@@ -13,7 +13,7 @@ test:
   image: golang:1.16
   stage: test
   script:
-    - go test ./...
+    - go test -coverprofile=coverage.out ./...
   artifacts:
     paths:
       - coverage.out
