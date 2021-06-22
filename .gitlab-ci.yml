@@ -44,10 +44,10 @@ deploy:
     - docker pull $DOCKER_HUB_ID/$IMAGE_NAME
     - docker stop $CONTAINER_NAME || true
     - docker run --rm -d \
-    -p $SMS_SERVICE_PORT:$SMS_SERVICE_PORT \ 
+    -p $SMS_SERVICE_PORT:$SMS_SERVICE_PORT \
     -e HOST_IP=$HOST_IP \
     -e SMS_SERVICE_PORT=$SMS_SERVICE_PORT \
-    --network $DOCKER_NETWORK \ 
+    --network $DOCKER_NETWORK \
     --name $CONTAINER_NAME \
     $DOCKER_HUB_ID/$IMAGE_NAME
 
