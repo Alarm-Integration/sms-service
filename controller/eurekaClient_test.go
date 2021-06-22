@@ -15,7 +15,10 @@ func Test_Eureka_Registration_Success(t *testing.T) {
 	// given
 	defaultzone := "http://139.150.75.239:8761/eureka/"
 	app := "sms-service"
-	port, _ := strconv.Atoi(os.Getenv("SMS_SERVICE_PORT"))
+	port, portErr := strconv.Atoi(os.Getenv("SMS_SERVICE_PORT"))
+	if portErr != nil {
+		port = 30020
+	}
 
 	// when
 	err := controller.ReigsterEurekaClient(defaultzone, app, port)
@@ -30,7 +33,10 @@ func Test_Eureka_Registration_Fail(t *testing.T) {
 	// given
 	defaultzone := "http://139.150.75.2391234:8761/eureka/"
 	app := "sms-service"
-	port, _ := strconv.Atoi(os.Getenv("SMS_SERVICE_PORT"))
+	port, portErr := strconv.Atoi(os.Getenv("SMS_SERVICE_PORT"))
+	if portErr != nil {
+		port = 30020
+	}
 	expectedErrorString := "client registration failed"
 
 	// when
