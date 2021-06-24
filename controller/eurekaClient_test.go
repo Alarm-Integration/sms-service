@@ -13,7 +13,7 @@ import (
 func Test_Eureka_Registration_Success(t *testing.T) {
 
 	// given
-	defaultzone := "http://139.150.75.239:8761/eureka/"
+	defaultzone := os.Getenv("EUREKA_SERVER")
 	app := "sms-service"
 	port, portErr := strconv.Atoi(os.Getenv("SMS_SERVICE_PORT"))
 	if portErr != nil {
