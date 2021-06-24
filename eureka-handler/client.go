@@ -21,9 +21,8 @@ type Client struct {
 }
 
 func (c *Client) Start() error {
-	c.mutex.Lock()
 	c.Running = true
-	c.mutex.Unlock()
+
 	if err := c.doRegister(); err != nil {
 		log.Println(err.Error())
 		return errors.New("client registration failed")
