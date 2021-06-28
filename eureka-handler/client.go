@@ -38,14 +38,13 @@ func (c *Client) Start() error {
 
 func (c *Client) refresh() {
 	for {
-		if c.Running {
-			if err := c.doRefresh(); err != nil {
-				log.Println(err)
-			} else {
-				log.Println("refresh application instance successful")
-			}
-		} else {
+		if !c.Running {
 			break
+		}
+		if err := c.doRefresh(); err != nil {
+			log.Println(err)
+		} else {
+			log.Println("refresh application instance successful")
 		}
 		sleep := time.Duration(c.Config.RegistryFetchIntervalSeconds)
 		time.Sleep(sleep * time.Second)
@@ -54,21 +53,20 @@ func (c *Client) refresh() {
 
 func (c *Client) heartbeat() {
 	for {
-		if c.Running {
-			if err := c.doHeartbeat(); err != nil {
-				if err == ErrNotFound {
-					log.Println("heartbeat Not Found, need register")
-					if err = c.doRegister(); err != nil {
-						log.Printf("do register error: %s\n", err)
-					}
-					continue
-				}
-				log.Println(err)
-			} else {
-				log.Println("heartbeat application instance successful")
-			}
-		} else {
+		if !c.Running {
 			break
+		}
+		if err := c.doHeartbeat(); err != nil {
+			if err == ErrNotFound {
+				log.Println("heartbeat Not Found, need register")
+				if err = c.doRegister(); err != nil {
+					log.Printf("do register error: %s\n", err)
+				}
+				continue
+			}
+			log.Println(err)
+		} else {
+			log.Println("heartbeat application instance successful")
 		}
 		sleep := time.Duration(c.Config.RenewalIntervalInSecs)
 		time.Sleep(sleep * time.Second)
