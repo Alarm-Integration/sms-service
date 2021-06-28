@@ -11,13 +11,7 @@ import (
 func main() {
 
 	// 0. If env variables are not defined, terminate app
-	if os.Getenv("EUREKA_SERVER") == "" {
-		os.Exit(-1)
-	}
-	if os.Getenv("SMS_SERVICE_PORT") == "" {
-		os.Exit(-1)
-	}
-	if os.Getenv("SERVICE_NAME") == "" {
+	if os.Getenv("EUREKA_SERVER") == "" || os.Getenv("SMS_SERVICE_PORT") == "" || os.Getenv("SERVICE_NAME") == "" {
 		os.Exit(-1)
 	}
 
