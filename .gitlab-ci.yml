@@ -14,7 +14,7 @@ test:
   image: golang:1.16
   stage: test
   script:
-    - go test -v -coverprofile=coverage.out ./controller
+    - go test -v -coverprofile=coverage.out ./...
   artifacts:
     paths:
       - coverage.out
