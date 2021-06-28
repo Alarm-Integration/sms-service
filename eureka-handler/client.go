@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -137,9 +136,6 @@ func NewClient(config *Config) *Client {
 }
 
 func defaultConfig(config *Config) {
-	if config.DefaultZone == "" {
-		config.DefaultZone = "http://localhost:8761/eureka/"
-	}
 	if config.RenewalIntervalInSecs == 0 {
 		config.RenewalIntervalInSecs = 30
 	}
@@ -148,13 +144,5 @@ func defaultConfig(config *Config) {
 	}
 	if config.DurationInSecs == 0 {
 		config.DurationInSecs = 90
-	}
-	if config.App == "" {
-		config.App = "server"
-	} else {
-		config.App = strings.ToLower(config.App)
-	}
-	if config.Port == 0 {
-		config.Port = 80
 	}
 }
