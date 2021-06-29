@@ -19,3 +19,12 @@ func IsIntegerType(param interface{}) error {
 		return errors.New("this is not integer type")
 	}
 }
+
+func IsStringType(param interface{}) error {
+	switch param.(type) {
+	case string:
+		return nil
+	default:
+		return errors.New("this is not string type")
+	}
+}

@@ -134,14 +134,18 @@ func (c *Client) handleSignal() {
 	}
 }
 
-func NewClient(config *Config) *Client {
+func NewClient(config *Config) (*Client, error) {
 	defaultConfig(config)
 	ip := os.Getenv("HOST_IP")
 	if ip == "" {
-		ip = getLocalIP()
+		localIP := getLocalIP()
+		if err := util.IsStringType(localIP); err != nil {
+			return nil, err
+		}
+		ip = localIP
 	}
 	config.instance = NewInstance(ip, config)
-	return &Client{Config: config}
+	return &Client{Config: config}, nil
 }
 
 func defaultConfig(config *Config) {
