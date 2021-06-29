@@ -8,6 +8,8 @@ import (
 	"sync"
 	"syscall"
 	"time"
+
+	"github.com/GreatLaboratory/go-sms/util"
 )
 
 type Client struct {
@@ -58,7 +60,14 @@ func (c *Client) heartbeat() {
 		if err := c.doHeartbeat(); err != nil {
 			if err == ErrNotFound {
 				log.Println("heartbeat Not Found, need register")
-				if err = c.doRegister(); err != nil {
+
+				err = c.doRegister()
+
+				if typeErr := util.IsErrorType(err); typeErr != nil {
+					log.Fatal(typeErr)
+				}
+
+				if err != nil {
 					log.Printf("do register error: %s\n", err)
 				}
 				continue
