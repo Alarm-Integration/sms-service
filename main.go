@@ -1,9 +1,23 @@
 package main
 
 import (
-	_ "github.com/GreatLaboratory/go-sms/service"
+	"fmt"
+	"os"
+	"strconv"
+
+	"github.com/GreatLaboratory/go-sms/controller"
 )
 
 func main() {
+
+	// 0. If env variables are not defined, terminate app
+	if os.Getenv("EUREKA_SERVER") == "" || os.Getenv("SMS_SERVICE_PORT") == "" || os.Getenv("SERVICE_NAME") == "" {
+		os.Exit(-1)
+	}
+
+	// 1. Register Eureka Client to Discovery Service
+	fmt.Println("[Eureka] Start Client Registration!!!")
+	port, _ := strconv.Atoi(os.Getenv("SMS_SERVICE_PORT"))
+	controller.ReigsterEurekaClient(os.Getenv("EUREKA_SERVER"), os.Getenv("SERVICE_NAME"), port)
 
 }
