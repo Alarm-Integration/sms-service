@@ -1,7 +1,6 @@
 package controller_test
 
 import (
-	"errors"
 	"os"
 	"strconv"
 	"testing"
@@ -44,6 +43,6 @@ func Test_Eureka_Registration_Fail(t *testing.T) {
 
 	// then
 	assert.NotNil(t, err)
-	assert.EqualError(t, errors.New(expectedErrorString), expectedErrorString)
+	assert.EqualError(t, err, expectedErrorString)
 
 }
