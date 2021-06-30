@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/GreatLaboratory/go-sms/util"
+	"github.com/spf13/viper"
 )
 
 type Client struct {
@@ -136,7 +137,7 @@ func (c *Client) handleSignal() {
 
 func NewClient(config *Config) (*Client, error) {
 	defaultConfig(config)
-	ip := os.Getenv("HOST_IP")
+	ip := viper.GetString("eureka.client")
 	if ip == "" {
 		localIP := getLocalIP()
 		if err := util.IsStringType(localIP); err != nil {

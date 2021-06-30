@@ -9,20 +9,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_Kafka_Connection_Success(t *testing.T) {
-
-	// given
-	kafkaServer := "139.150.75.240"
-	groupId := "sms-service"
-	topics := []string{"sms"}
-
-	// when
-	err := controller.ConnectKafkaConsumer(kafkaServer, groupId, topics, true)
-
-	// then
-	assert.Nil(t, err)
-}
-
 func Test_Kafka_Connection_Fail(t *testing.T) {
 
 	// given
