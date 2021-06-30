@@ -29,9 +29,20 @@ build-go-application:
   artifacts:
     paths:
       - main
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
+    policy: push
+    paths:
+      - main
+
 
 build-docker-image:
   stage: build
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
+    policy: pull
+    paths:
+      - main
   script:
     - docker login -u $DOCKER_HUB_ID -p $DOCKER_HUB_PASSWORD
     - docker build -t $DOCKER_HUB_ID/$IMAGE_NAME .
