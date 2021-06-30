@@ -25,5 +25,5 @@ func main() {
 
 	// 2. Connect to Kafka Broker (if consuming message, send sms alarm)
 	fmt.Println("[KAFKA] Start Connection!!!")
-	controller.ConnectKafkaConsumer(os.Getenv("EUREKA_SERVER"), os.Getenv("SERVICE_NAME"), []string{"sms"})
+	controller.ConnectKafkaConsumer(os.Getenv("KAFKA_SERVER"), os.Getenv("SERVICE_NAME"), []string{"sms"})
 }
