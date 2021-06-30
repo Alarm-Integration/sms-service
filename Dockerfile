@@ -1,3 +1,3 @@
-FROM scratch
+FROM debian:buster
 COPY . .
 CMD ["./main"]
