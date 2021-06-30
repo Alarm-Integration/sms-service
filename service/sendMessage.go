@@ -5,6 +5,7 @@ import (
 
 	"github.com/GreatLaboratory/go-sms/model"
 	coolsms "github.com/coolsms/coolsms-go"
+	"github.com/spf13/viper"
 )
 
 // 메세지 발송
@@ -32,6 +33,12 @@ func SendGroupMessage(createGroupParams map[string]string, sendMessageDataList [
 // coolsms sdk에서 요청을 보내는 client 객체 생성
 func createClient() *coolsms.Client {
 	client := coolsms.NewClient()
+	client.Messages.Config = map[string]string{
+		"APIKey":    viper.GetString("sms.APIKey"),
+		"APISecret": viper.GetString("sms.APISecret"),
+		"Protocol":  viper.GetString("sms.Protocol"),
+		"Domain":    viper.GetString("sms.Domain"),
+	}
 	return client
 }
 
@@ -56,7 +63,6 @@ func addGroupMessage(groupId string, sendMessageDataList []model.SendMessageDto)
 	params := make(map[string]interface{})
 	params["messages"] = sendMessageDataList
 
-	client.Messages.AddGroupMessage(groupId, params)
 	_, err := client.Messages.AddGroupMessage(groupId, params)
 	if err != nil {
 		fmt.Println(err)
