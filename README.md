@@ -59,6 +59,8 @@ gitlab-runner register -n \
 ## load config file from spring config server
 - https://github.com/spf13/viper
 - https://dzone.com/articles/go-microservices-part-8-centralized-configuration
+- https://github.com/callistaenterprise/goblog/tree/P8/accountservice
+- https://github.com/streadway/amqp/blob/master/_examples/simple-consumer/consumer.go
 
 ## kafka produce & consume test
 ```bash
