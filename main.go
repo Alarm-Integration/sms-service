@@ -51,7 +51,7 @@ func main() {
 
 	// // 1. Register Eureka Client to Discovery Service
 	fmt.Println("[Eureka] Start Client Registration!!!")
-	port, _ := strconv.Atoi(viper.GetString("server.port"))
+	port, _ := strconv.Atoi(viper.GetString("servicePort"))
 	controller.ReigsterEurekaClient(viper.GetString("eureka.server"), viper.GetString("serviceName"), port)
 
 	// // 2. Connect to Kafka Broker (if consuming message, send sms alarm)
