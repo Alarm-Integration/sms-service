@@ -15,12 +15,15 @@ import (
 func init() {
 
 	// If env variables are not defined, terminate app
-	if os.Getenv("SERVICE_NAME") == "" || os.Getenv("CONFIG_SERVER") == "" {
+	if os.Getenv("SERVICE_NAME") == "" ||
+		os.Getenv("SMS_SERVICE_PORT") == "" ||
+		os.Getenv("CONFIG_SERVER") == "" {
 		os.Exit(-1)
 	}
 
 	configServerUrl := flag.String("configServerUrl", os.Getenv("CONFIG_SERVER"), "Address to config server")
 	serviceName := flag.String("serviceName", os.Getenv("SERVICE_NAME"), "service name of this application")
+	servicePort := flag.String("servicePort", os.Getenv("SMS_SERVICE_PORT"), "service port of this application")
 	profile := flag.String("profile", "default", "Environment profile, something similar to spring profiles")
 	configBranch := flag.String("configBranch", "master", "git branch to fetch configuration from")
 
@@ -31,6 +34,7 @@ func init() {
 	viper.Set("configServerUrl", *configServerUrl)
 	viper.Set("configBranch", *configBranch)
 	viper.Set("serviceName", *serviceName)
+	viper.Set("servicePort", *servicePort)
 }
 
 func main() {
