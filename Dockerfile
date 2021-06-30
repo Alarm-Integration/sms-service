@@ -1,3 +1,3 @@
-FROM debian:buster
+FROM alpine
 COPY . .
 CMD ["./main"]
