@@ -7,14 +7,13 @@ import (
 	"github.com/GreatLaboratory/go-sms/model"
 )
 
-func ConvertByteToDtoList(byteValue []byte) []model.SendMessageDto {
+func ConvertByteToDtoList(byteValue []byte) ([]model.SendMessageDto, error) {
 
 	var sendMessageDataList []model.SendMessageDto
 	var topicMessageDto model.TopicMessageDto
 
 	if err := json.Unmarshal(byteValue, &topicMessageDto); err != nil {
-		fmt.Println("Unmarshal Error : ", err)
-		panic(err)
+		return nil, err
 	}
 
 	text := "[" + topicMessageDto.Title + "] \n" + topicMessageDto.Content
@@ -45,6 +44,6 @@ func ConvertByteToDtoList(byteValue []byte) []model.SendMessageDto {
 	}
 	fmt.Println("=====================================================")
 
-	return sendMessageDataList
+	return sendMessageDataList, nil
 
 }

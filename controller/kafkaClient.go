@@ -40,8 +40,12 @@ func ConnectKafkaConsumer(kafkaServer, groupId string, topics []string, isTest .
 			fmt.Println("Consumed Message Topic Value : ", string(msg.Value))
 
 			params := make(map[string]string)
-			sendMessageDataList := util.ConvertByteToDtoList(msg.Value)
-			smsService.SendGroupMessage(params, sendMessageDataList)
+			sendMessageDataList, err := util.ConvertByteToDtoList(msg.Value)
+			if err != nil {
+				fmt.Println("Convert Error : ", err)
+			} else {
+				smsService.SendGroupMessage(params, sendMessageDataList)
+			}
 		}
 	}
 }
