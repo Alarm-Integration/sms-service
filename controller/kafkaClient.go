@@ -44,7 +44,11 @@ func ConnectKafkaConsumer(kafkaServer, groupId string, topics []string, isTest .
 			if err != nil {
 				fmt.Println("Convert Error : ", err)
 			} else {
-				smsService.SendGroupMessage(params, sendMessageDataList)
+				err := smsService.SendGroupMessage(params, sendMessageDataList)
+				if err != nil {
+					fmt.Println("Send SMS Error : ", err)
+				}
+				fmt.Println("[SMS] 문자 발송 성공")
 			}
 		}
 	}
