@@ -9,14 +9,15 @@ import (
 	"github.com/streadway/amqp"
 )
 
-func StartListener(amqpServer, exchange, exchangeType, queue, key, ctag string) {
-	err := newConsumer(amqpServer, exchange, exchangeType, queue, key, ctag)
+func StartListener(amqpURI, exchange, exchangeType, queueName, bindingKey, consumerTag string) {
+	err := newConsumer(amqpURI, exchange, exchangeType, queueName, bindingKey, consumerTag)
 	if err != nil {
 		log.Fatalf("%s", err)
 	}
 
 	log.Printf("running forever")
-	select {} // Yet another way to stop a Goroutine from finishing...
+	select {}
+
 }
 
 type consumer struct {
@@ -26,21 +27,25 @@ type consumer struct {
 	done    chan error
 }
 
-func newConsumer(amqpServer, exchange, exchangeType, queue, key, ctag string) error {
+func newConsumer(amqpURI, exchange, exchangeType, queueName, bindingKey, consumerTag string) error {
 	c := &consumer{
 		conn:    nil,
 		channel: nil,
-		tag:     ctag,
+		tag:     consumerTag,
 		done:    make(chan error),
 	}
 
 	var err error
 
-	log.Printf("dialing %s", amqpServer)
-	c.conn, err = amqp.Dial(amqpServer)
+	log.Printf("dialing %s", amqpURI)
+	c.conn, err = amqp.Dial(amqpURI)
 	if err != nil {
 		return fmt.Errorf("dial: %s", err)
 	}
+
+	go func() {
+		fmt.Printf("closing: %s", <-c.conn.NotifyClose(make(chan *amqp.Error)))
+	}()
 
 	log.Printf("got Connection, getting Channel")
 	c.channel, err = c.conn.Channel()
@@ -61,41 +66,41 @@ func newConsumer(amqpServer, exchange, exchangeType, queue, key, ctag string) er
 		return fmt.Errorf("exchange Declare: %s", err)
 	}
 
-	log.Printf("declared Exchange, declaring Queue (%s)", queue)
-	state, err := c.channel.QueueDeclare(
-		queue, // name of the queue
-		false, // durable
-		false, // delete when usused
-		false, // exclusive
-		false, // noWait
-		nil,   // arguments
+	log.Printf("declared Exchange, declaring Queue %s", queueName)
+	queue, err := c.channel.QueueDeclare(
+		queueName, // name of the queue
+		false,     // durable
+		false,     // delete when unused
+		false,     // exclusive
+		false,     // noWait
+		nil,       // arguments
 	)
 	if err != nil {
 		return fmt.Errorf("queue Declare: %s", err)
 	}
 
-	log.Printf("declared Queue (%d messages, %d consumers), binding to Exchange (key '%s')",
-		state.Messages, state.Consumers, key)
+	log.Printf("declared Queue (%s %d messages, %d consumers), binding to Exchange (key %s)",
+		queue.Name, queue.Messages, queue.Consumers, bindingKey)
 
 	if err = c.channel.QueueBind(
-		queue,    // name of the queue
-		key,      // bindingKey
-		exchange, // sourceExchange
-		false,    // noWait
-		nil,      // arguments
+		queue.Name, // name of the queue
+		bindingKey, // bindingKey
+		exchange,   // sourceExchange
+		false,      // noWait
+		nil,        // arguments
 	); err != nil {
 		return fmt.Errorf("queue Bind: %s", err)
 	}
 
-	log.Printf("Queue bound to Exchange, starting Consume (consumer tag '%s')", c.tag)
+	log.Printf("Queue bound to Exchange, starting Consume (consumer tag %s)", c.tag)
 	deliveries, err := c.channel.Consume(
-		queue, // name
-		c.tag, // consumerTag,
-		false, // noAck
-		false, // exclusive
-		false, // noLocal
-		false, // noWait
-		nil,   // arguments
+		queue.Name, // name
+		c.tag,      // consumerTag,
+		false,      // noAck
+		false,      // exclusive
+		false,      // noLocal
+		false,      // noWait
+		nil,        // arguments
 	)
 	if err != nil {
 		return fmt.Errorf("queue Consume: %s", err)
@@ -109,7 +114,7 @@ func newConsumer(amqpServer, exchange, exchangeType, queue, key, ctag string) er
 func handle(deliveries <-chan amqp.Delivery, done chan error) {
 	for d := range deliveries {
 		log.Printf(
-			"got %dB consumer: [%v] delivery: [%v] routingkey: [%v] %s",
+			"got %dB consumerTag: [%v] deliveryTag: [%v] routingkey: [%v] %s",
 			len(d.Body),
 			d.ConsumerTag,
 			d.DeliveryTag,

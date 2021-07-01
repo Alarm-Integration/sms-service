@@ -49,8 +49,8 @@ func main() {
 		viper.GetString("profile"),
 		viper.GetString("configbranch"),
 	)
-	// amqpServer := fmt.Sprintf("amqp://%s:%s@%s:%s", viper.GetString("rabbitmq.username"), viper.GetString("rabbitmq.password"), viper.GetString("rabbitmq.server"), viper.GetString("rabbitmq.port"))
-	// go config.StartListener(amqpServer, "springCloudBus", "topic", "sms-service-queue", "springCloudBus", viper.GetString("serviceName"))
+	amqpServer := fmt.Sprintf("amqp://%s:%s@%s:%s", viper.GetString("rabbitmq.username"), viper.GetString("rabbitmq.password"), viper.GetString("rabbitmq.server"), viper.GetString("rabbitmq.port"))
+	go config.StartListener(amqpServer, "springCloudBus", "topic", "sms-service-queue", "springCloudBus", viper.GetString("serviceName"))
 
 	// 1. Register Eureka Client to Discovery Service
 	fmt.Println("[Eureka] Start Client Registration!!!")
