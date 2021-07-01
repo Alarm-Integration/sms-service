@@ -11,10 +11,10 @@ import (
 
 func LoadConfigurationFromBranch(configServerUrl string, appName string, profile string, branch string) {
 	url := fmt.Sprintf("%s/%s/%s/%s", configServerUrl, appName, profile, branch)
-	fmt.Printf("Loading config from %s\n", url)
+	fmt.Printf("[Config] Loading config from %s\n", url)
 	body, err := fetchConfiguration(url)
 	if err != nil {
-		panic("Couldn't load configuration, cannot start. Terminating. Error: " + err.Error())
+		panic("[Config] Couldn't load configuration, cannot start. Terminating. Error: " + err.Error())
 	}
 	ParseConfiguration(body)
 }
@@ -22,7 +22,7 @@ func LoadConfigurationFromBranch(configServerUrl string, appName string, profile
 func fetchConfiguration(url string) ([]byte, error) {
 	resp, err := http.Get(url)
 	if err != nil {
-		panic("Couldn't load configuration, cannot start. Terminating. Error: " + err.Error())
+		panic("[Config] Couldn't load configuration, cannot start. Terminating. Error: " + err.Error())
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	return body, err
@@ -32,15 +32,15 @@ func ParseConfiguration(body []byte) {
 	var cloudConfig springCloudConfig
 	err := json.Unmarshal(body, &cloudConfig)
 	if err != nil {
-		panic("Cannot parse configuration, message: " + err.Error())
+		panic("[Config] Cannot parse configuration, message: " + err.Error())
 	}
 
 	for key, value := range cloudConfig.PropertySources[0].Source {
 		viper.Set(key, value)
-		fmt.Printf("Loading config property %v => %v\n", key, value)
+		fmt.Printf("[Config] Loading config property %v => %v\n", key, value)
 	}
 	if viper.IsSet("serviceName") {
-		fmt.Printf("Successfully loaded configuration for service %s\n", viper.GetString("serviceName"))
+		fmt.Printf("[Config] Successfully loaded configuration for service %s\n", viper.GetString("serviceName"))
 	}
 }
 

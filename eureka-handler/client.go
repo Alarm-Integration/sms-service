@@ -27,9 +27,9 @@ func (c *Client) Start() error {
 
 	if err := c.doRegister(); err != nil {
 		log.Println(err.Error())
-		return errors.New("client registration failed")
+		return errors.New("[Eureka] client registration failed")
 	}
-	log.Println("register application instance successful")
+	log.Println("[Eureka] register application instance successful")
 
 	go c.refresh()
 	go c.heartbeat()
@@ -46,7 +46,7 @@ func (c *Client) refresh() {
 		if err := c.doRefresh(); err != nil {
 			log.Println(err)
 		} else {
-			log.Println("refresh application instance successful")
+			log.Println("[Eureka] refresh application instance successful")
 		}
 		sleep := time.Duration(c.Config.RegistryFetchIntervalSeconds)
 		time.Sleep(sleep * time.Second)
@@ -60,7 +60,7 @@ func (c *Client) heartbeat() {
 		}
 		if err := c.doHeartbeat(); err != nil {
 			if err == ErrNotFound {
-				log.Println("heartbeat Not Found, need register")
+				log.Println("[Eureka] heartbeat Not Found, need register")
 
 				err = c.doRegister()
 
@@ -69,13 +69,13 @@ func (c *Client) heartbeat() {
 				}
 
 				if err != nil {
-					log.Printf("do register error: %s\n", err)
+					log.Printf("[Eureka] do register error: %s\n", err)
 				}
 				continue
 			}
 			log.Println(err)
 		} else {
-			log.Println("heartbeat application instance successful")
+			log.Println("[Eureka] heartbeat application instance successful")
 		}
 		sleep := time.Duration(c.Config.RenewalIntervalInSecs)
 		time.Sleep(sleep * time.Second)
@@ -123,12 +123,12 @@ func (c *Client) handleSignal() {
 		case syscall.SIGKILL:
 			fallthrough
 		case syscall.SIGTERM:
-			log.Println("receive exit signal, client instance going to de-register")
+			log.Println("[Eureka] receive exit signal, client instance going to de-register")
 			err := c.doUnRegister()
 			if err != nil {
 				log.Println(err.Error())
 			} else {
-				log.Println("unRegister application instance successful")
+				log.Println("[Eureka] unRegister application instance successful")
 			}
 			os.Exit(0)
 		}

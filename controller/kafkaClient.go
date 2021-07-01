@@ -17,15 +17,15 @@ func ConnectKafkaConsumer(kafkaServer, groupId string, topics []string, isTest .
 	})
 
 	if createErr != nil {
-		return errors.New("consumer create failed")
+		return errors.New("[Kafka] consumer create failed")
 	}
 
 	subscribeErr := consumer.SubscribeTopics(topics, nil)
 	if subscribeErr != nil {
-		return errors.New("consumer topic subscribe failed")
+		return errors.New("[Kafka] consumer topic subscribe failed")
 	}
 
-	fmt.Println("Kafka Connection Success")
+	fmt.Println("[Kafka] Connection Success")
 	for {
 		msg, err := consumer.ReadMessage(-1)
 		if err != nil {
@@ -34,19 +34,19 @@ func ConnectKafkaConsumer(kafkaServer, groupId string, topics []string, isTest .
 				return errors.New(err.Error())
 			}
 			// The client will automatically try to recover from all errors.
-			fmt.Printf("Kafka Connection Error: %v (%v)\n", err, msg)
+			fmt.Printf("[Kafka] Connection Error: %v (%v)\n", err, msg)
 		} else {
-			fmt.Println("Consumed Message Topic Partition : ", msg.TopicPartition)
-			fmt.Println("Consumed Message Topic Value : ", string(msg.Value))
+			fmt.Println("[Kafka] Consumed Message Topic Partition : ", msg.TopicPartition)
+			fmt.Println("[Kafka] Consumed Message Topic Value : ", string(msg.Value))
 
 			params := make(map[string]string)
 			sendMessageDataList, err := util.ConvertByteToDtoList(msg.Value)
 			if err != nil {
-				fmt.Println("Convert Error : ", err)
+				fmt.Println("[Kafka] Convert Error : ", err)
 			} else {
 				err := smsService.SendGroupMessage(params, sendMessageDataList)
 				if err != nil {
-					fmt.Println("Send SMS Error : ", err)
+					fmt.Println("[SMS] Send Error : ", err)
 				}
 			}
 		}

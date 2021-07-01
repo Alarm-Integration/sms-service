@@ -15,7 +15,7 @@ func StartListener(amqpURI, exchange, exchangeType, queueName, bindingKey, consu
 		log.Fatalf("%s", err)
 	}
 
-	log.Printf("RabbitMQ is running")
+	log.Printf("[RabbitMQ] Running!!")
 	select {}
 
 }
@@ -37,23 +37,23 @@ func newConsumer(amqpURI, exchange, exchangeType, queueName, bindingKey, consume
 
 	var err error
 
-	log.Printf("dialing %s", amqpURI)
+	log.Printf("[RabbitMQ] dialing %s", amqpURI)
 	c.conn, err = amqp.Dial(amqpURI)
 	if err != nil {
-		return fmt.Errorf("dial: %s", err)
+		return fmt.Errorf("[RabbitMQ] dial: %s", err)
 	}
 
 	go func() {
-		fmt.Printf("closing: %s", <-c.conn.NotifyClose(make(chan *amqp.Error)))
+		fmt.Printf("[RabbitMQ] closing: %s", <-c.conn.NotifyClose(make(chan *amqp.Error)))
 	}()
 
-	log.Printf("got Connection, getting Channel")
+	log.Printf("[RabbitMQ] got Connection, getting Channel")
 	c.channel, err = c.conn.Channel()
 	if err != nil {
-		return fmt.Errorf("channel: %s", err)
+		return fmt.Errorf("[RabbitMQ] channel: %s", err)
 	}
 
-	log.Printf("got Channel, declaring Exchange (%s)", exchange)
+	log.Printf("[RabbitMQ] got Channel, declaring Exchange (%s)", exchange)
 	if err = c.channel.ExchangeDeclare(
 		exchange,     // name of the exchange
 		exchangeType, // type
@@ -63,10 +63,10 @@ func newConsumer(amqpURI, exchange, exchangeType, queueName, bindingKey, consume
 		false,        // noWait
 		nil,          // arguments
 	); err != nil {
-		return fmt.Errorf("exchange Declare: %s", err)
+		return fmt.Errorf("[RabbitMQ] exchange Declare: %s", err)
 	}
 
-	log.Printf("declared Exchange, declaring Queue %s", queueName)
+	log.Printf("[RabbitMQ] declared Exchange, declaring Queue %s", queueName)
 	queue, err := c.channel.QueueDeclare(
 		queueName, // name of the queue
 		false,     // durable
@@ -76,10 +76,10 @@ func newConsumer(amqpURI, exchange, exchangeType, queueName, bindingKey, consume
 		nil,       // arguments
 	)
 	if err != nil {
-		return fmt.Errorf("queue Declare: %s", err)
+		return fmt.Errorf("[RabbitMQ] queue Declare: %s", err)
 	}
 
-	log.Printf("declared Queue (%s %d messages, %d consumers), binding to Exchange (key %s)",
+	log.Printf("[RabbitMQ] declared Queue (%s %d messages, %d consumers), binding to Exchange (key %s)",
 		queue.Name, queue.Messages, queue.Consumers, bindingKey)
 
 	if err = c.channel.QueueBind(
@@ -89,10 +89,10 @@ func newConsumer(amqpURI, exchange, exchangeType, queueName, bindingKey, consume
 		false,      // noWait
 		nil,        // arguments
 	); err != nil {
-		return fmt.Errorf("queue Bind: %s", err)
+		return fmt.Errorf("[RabbitMQ] queue Bind: %s", err)
 	}
 
-	log.Printf("Queue bound to Exchange, starting Consume (consumer tag %s)", c.tag)
+	log.Printf("[RabbitMQ] Queue bound to Exchange, starting Consume (consumer tag %s)", c.tag)
 	deliveries, err := c.channel.Consume(
 		queue.Name, // name
 		c.tag,      // consumerTag,
@@ -103,7 +103,7 @@ func newConsumer(amqpURI, exchange, exchangeType, queueName, bindingKey, consume
 		nil,        // arguments
 	)
 	if err != nil {
-		return fmt.Errorf("queue Consume: %s", err)
+		return fmt.Errorf("[RabbitMQ] queue Consume: %s", err)
 	}
 
 	go handle(deliveries, c.done)
@@ -114,7 +114,7 @@ func newConsumer(amqpURI, exchange, exchangeType, queueName, bindingKey, consume
 func handle(deliveries <-chan amqp.Delivery, done chan error) {
 	for d := range deliveries {
 		log.Printf(
-			"got %dB consumerTag: [%v] deliveryTag: [%v] routingkey: [%v] %s",
+			"[RabbitMQ] got %dB consumerTag: [%v] deliveryTag: [%v] routingkey: [%v] %s",
 			len(d.Body),
 			d.ConsumerTag,
 			d.DeliveryTag,
@@ -124,7 +124,7 @@ func handle(deliveries <-chan amqp.Delivery, done chan error) {
 		handleRefreshEvent(d.Body, d.ConsumerTag)
 		d.Ack(false)
 	}
-	log.Printf("handle: deliveries channel closed")
+	log.Printf("[RabbitMQ] handle: deliveries channel closed")
 	done <- nil
 }
 
@@ -132,9 +132,9 @@ func handleRefreshEvent(body []byte, consumerTag string) {
 	updateToken := &UpdateToken{}
 	err := json.Unmarshal(body, updateToken)
 	if err != nil {
-		log.Printf("Problem parsing UpdateToken: %v", err.Error())
+		log.Printf("[Config] Problem parsing UpdateToken: %v", err.Error())
 	} else {
-		log.Println("Reloading Viper config from Spring Cloud Config server")
+		log.Println("[Config] Reloading Viper config from Spring Cloud Config server")
 
 		// Consumertag is same as application name.
 		LoadConfigurationFromBranch(

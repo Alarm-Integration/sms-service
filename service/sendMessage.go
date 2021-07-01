@@ -15,25 +15,25 @@ func SendGroupMessage(createGroupParams map[string]string, sendMessageDataList [
 	// 1. 메세지 발송을 위한 그룹 생성
 	groupId, createGroupErr := createGroup(createGroupParams)
 	if createGroupErr != nil {
-		fmt.Println("create group error")
+		fmt.Println("[SMS] create group error")
 		return createGroupErr
 	}
 
 	// 2. 그룹에 메세지 데이터 저장
 	addMessageErr := addGroupMessage(groupId, sendMessageDataList)
 	if addMessageErr != nil {
-		fmt.Println("add message error")
+		fmt.Println("[SMS] add message error")
 		return addMessageErr
 	}
 
 	// 3. 완성된 그룹의 메세지 발송
 	_, sendMessageErr := client.Messages.SendGroup(groupId)
 	if sendMessageErr != nil {
-		fmt.Println("send message error")
+		fmt.Println("[SMS] send message error")
 		return sendMessageErr
 	}
 
-	fmt.Println("[SMS] 문자 발송 성공")
+	fmt.Println("[SMS] send message success")
 	return nil
 }
 
@@ -58,7 +58,7 @@ func createGroup(params map[string]string) (string, error) {
 		return "", err
 	}
 
-	fmt.Println("[SMS] 그룹 생성 성공")
+	fmt.Println("[SMS] create group success")
 	return createdGroup.GroupId, nil
 }
 
@@ -73,6 +73,6 @@ func addGroupMessage(groupId string, sendMessageDataList []model.SendMessageDto)
 		return err
 	}
 
-	fmt.Println("[SMS] 그룹 내 메세지 저장 성공")
+	fmt.Println("[SMS] add message success")
 	return nil
 }
