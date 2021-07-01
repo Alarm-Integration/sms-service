@@ -1,6 +1,8 @@
 package service
 
 import (
+	"fmt"
+
 	"github.com/GreatLaboratory/go-sms/model"
 	coolsms "github.com/coolsms/coolsms-go"
 	"github.com/spf13/viper"
@@ -28,6 +30,7 @@ func SendGroupMessage(createGroupParams map[string]string, sendMessageDataList [
 		return sendMessageErr
 	}
 
+	fmt.Println("[SMS] 문자 발송 성공")
 	return nil
 }
 
@@ -52,6 +55,7 @@ func createGroup(params map[string]string) (string, error) {
 		return "", err
 	}
 
+	fmt.Println("[SMS] 그룹 생성 성공")
 	return createdGroup.GroupId, nil
 }
 
@@ -66,5 +70,7 @@ func addGroupMessage(groupId string, sendMessageDataList []model.SendMessageDto)
 	if err != nil {
 		return err
 	}
+
+	fmt.Println("[SMS] 그룹 내 메세지 저장 성공")
 	return nil
 }
