@@ -24,6 +24,9 @@ func init() {
 	configServerUrl := flag.String("configServerUrl", os.Getenv("CONFIG_SERVER"), "Address to config server")
 	serviceName := flag.String("serviceName", os.Getenv("SERVICE_NAME"), "service name of this application")
 	servicePort := flag.String("servicePort", os.Getenv("SMS_SERVICE_PORT"), "service port of this application")
+	// configServerUrl := flag.String("configServerUrl", "http://139.150.75.239:8888", "Address to config server")
+	// serviceName := flag.String("serviceName", "sms-service", "service name of this application")
+	// servicePort := flag.String("servicePort", "30020", "service port of this application")
 	profile := flag.String("profile", "default", "Environment profile, something similar to spring profiles")
 	configBranch := flag.String("configBranch", "master", "git branch to fetch configuration from")
 
@@ -39,22 +42,22 @@ func init() {
 
 func main() {
 
-	// 0. load the config
+	// 0. Load the config
 	config.LoadConfigurationFromBranch(
 		viper.GetString("configserverurl"),
 		viper.GetString("serviceName"),
 		viper.GetString("profile"),
 		viper.GetString("configbranch"),
 	)
-	amqpServer := fmt.Sprintf("amqp://%s:%s@%s:%s", viper.GetString("rabbitmq.username"), viper.GetString("rabbitmq.password"), viper.GetString("rabbitmq.server"), viper.GetString("rabbitmq.port"))
-	go config.StartListener(amqpServer, "springCloudBus", "topic", "sms-service-queue", "springCloudBus", viper.GetString("serviceName"))
+	// amqpServer := fmt.Sprintf("amqp://%s:%s@%s:%s", viper.GetString("rabbitmq.username"), viper.GetString("rabbitmq.password"), viper.GetString("rabbitmq.server"), viper.GetString("rabbitmq.port"))
+	// go config.StartListener(amqpServer, "springCloudBus", "topic", "sms-service-queue", "springCloudBus", viper.GetString("serviceName"))
 
-	// // 1. Register Eureka Client to Discovery Service
+	// 1. Register Eureka Client to Discovery Service
 	fmt.Println("[Eureka] Start Client Registration!!!")
 	port, _ := strconv.Atoi(viper.GetString("servicePort"))
 	controller.ReigsterEurekaClient(viper.GetString("eureka.server"), viper.GetString("serviceName"), port)
 
-	// // 2. Connect to Kafka Broker (if consuming message, send sms alarm)
+	// 2. Connect to Kafka Broker (if consuming message, send sms alarm)
 	fmt.Println("[KAFKA] Start Connection!!!")
 	controller.ConnectKafkaConsumer(viper.GetString("kafka.server"), viper.GetString("serviceName"), []string{"sms"})
 }
