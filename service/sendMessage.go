@@ -11,6 +11,12 @@ import (
 // 메세지 발송
 func SendGroupMessage(createGroupParams map[string]string, sendMessageDataList []model.SendMessageDto) error {
 	client := createClient()
+	client.Messages.Config = map[string]string{
+		"APIKey":    viper.GetString("sms.APIKey"),
+		"APISecret": viper.GetString("sms.APISecret"),
+		"Protocol":  viper.GetString("sms.Protocol"),
+		"Domain":    viper.GetString("sms.Domain"),
+	}
 
 	// 1. 메세지 발송을 위한 그룹 생성
 	groupId, createGroupErr := createGroup(createGroupParams)
@@ -49,7 +55,12 @@ func createClient() *coolsms.Client {
 // 메세지 발송을 위한 그룹 생성
 func createGroup(params map[string]string) (string, error) {
 	client := createClient()
-
+	client.Messages.Config = map[string]string{
+		"APIKey":    viper.GetString("sms.APIKey"),
+		"APISecret": viper.GetString("sms.APISecret"),
+		"Protocol":  viper.GetString("sms.Protocol"),
+		"Domain":    viper.GetString("sms.Domain"),
+	}
 	createdGroup, err := client.Messages.CreateGroup(params)
 	if err != nil {
 		return "", err
@@ -62,7 +73,12 @@ func createGroup(params map[string]string) (string, error) {
 // 생성된 그룹에 메세지 데이터 저장
 func addGroupMessage(groupId string, sendMessageDataList []model.SendMessageDto) error {
 	client := createClient()
-
+	client.Messages.Config = map[string]string{
+		"APIKey":    viper.GetString("sms.APIKey"),
+		"APISecret": viper.GetString("sms.APISecret"),
+		"Protocol":  viper.GetString("sms.Protocol"),
+		"Domain":    viper.GetString("sms.Domain"),
+	}
 	params := make(map[string]interface{})
 	params["messages"] = sendMessageDataList
 
