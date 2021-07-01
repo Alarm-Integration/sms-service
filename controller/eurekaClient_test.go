@@ -28,7 +28,7 @@ func Test_Eureka_Registration_Fail(t *testing.T) {
 	defaultzone := "http://139.150.75.2391234:8761/eureka/"
 	app := "sms-service"
 	port := 30020
-	expectedErrorString := "client registration failed"
+	expectedErrorString := "[Eureka] client registration failed"
 
 	// when
 	err := controller.ReigsterEurekaClient(defaultzone, app, port)

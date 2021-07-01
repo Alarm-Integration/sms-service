@@ -32,7 +32,7 @@ func Test_Kafka_Consumer_Create_Fail(t *testing.T) {
 	kafkaServer := "139.150.75.240"
 	var groupId string
 	topics := []string{"sms"}
-	expectedErrorString := "consumer create failed"
+	expectedErrorString := "[Kafka] consumer create failed"
 
 	// when
 	err := controller.ConnectKafkaConsumer(kafkaServer, groupId, topics, true)
@@ -49,7 +49,7 @@ func Test_Kafka_Consumer_Subscribe_Fail(t *testing.T) {
 	kafkaServer := "139.150.75.240"
 	groupId := ""
 	topics := []string{"sms"}
-	expectedErrorString := "consumer topic subscribe failed"
+	expectedErrorString := "[Kafka] consumer topic subscribe failed"
 
 	// when
 	err := controller.ConnectKafkaConsumer(kafkaServer, groupId, topics, true)
