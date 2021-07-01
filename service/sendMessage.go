@@ -5,6 +5,7 @@ import (
 
 	"github.com/GreatLaboratory/go-sms/model"
 	coolsms "github.com/coolsms/coolsms-go"
+	"github.com/spf13/viper"
 )
 
 // 메세지 발송
@@ -39,19 +40,24 @@ func SendGroupMessage(createGroupParams map[string]string, sendMessageDataList [
 // 메세지를 보내는 client 객체 생성
 func createClient() *coolsms.Client {
 	client := coolsms.NewClient()
-	// client.Messages.Config = map[string]string{
-	// 	"APIKey":    viper.GetString("sms.APIKey"),
-	// 	"APISecret": viper.GetString("sms.APISecret"),
-	// 	"Protocol":  viper.GetString("sms.Protocol"),
-	// 	"Domain":    viper.GetString("sms.Domain"),
-	// 	"Prefix":    "",
-	// }
+	client.Messages.Config = map[string]string{
+		"APIKey":    viper.GetString("sms.APIKey"),
+		"APISecret": viper.GetString("sms.APISecret"),
+		"Protocol":  viper.GetString("sms.Protocol"),
+		"Domain":    viper.GetString("sms.Domain"),
+		"Prefix":    "",
+	}
 	return client
 }
 
 // 메세지 발송을 위한 그룹 생성
 func createGroup(params map[string]string) (string, error) {
 	client := createClient()
+	fmt.Println("###########", client.Messages.Config["APIKey"])
+	fmt.Println("###########", client.Messages.Config["APISecret"])
+	fmt.Println("###########", client.Messages.Config["Protocol"])
+	fmt.Println("###########", client.Messages.Config["Domain"])
+	fmt.Println("###########", client.Messages.Config["Prefix"])
 	createdGroup, err := client.Messages.CreateGroup(params)
 	if err != nil {
 		return "", err
