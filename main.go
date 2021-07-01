@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 	"strconv"
 
 	"github.com/GreatLaboratory/go-sms/config"
@@ -14,18 +15,18 @@ import (
 func init() {
 
 	// If env variables are not defined, terminate app
-	// if os.Getenv("SERVICE_NAME") == "" ||
-	// 	os.Getenv("SMS_SERVICE_PORT") == "" ||
-	// 	os.Getenv("CONFIG_SERVER") == "" {
-	// 	os.Exit(-1)
-	// }
+	if os.Getenv("SERVICE_NAME") == "" ||
+		os.Getenv("SMS_SERVICE_PORT") == "" ||
+		os.Getenv("CONFIG_SERVER") == "" {
+		os.Exit(-1)
+	}
 
-	// configServerUrl := flag.String("configServerUrl", os.Getenv("CONFIG_SERVER"), "Address to config server")
-	// serviceName := flag.String("serviceName", os.Getenv("SERVICE_NAME"), "service name of this application")
-	// servicePort := flag.String("servicePort", os.Getenv("SMS_SERVICE_PORT"), "service port of this application")
-	configServerUrl := flag.String("configServerUrl", "http://139.150.75.239:8888", "Address to config server")
-	serviceName := flag.String("serviceName", "sms-service", "service name of this application")
-	servicePort := flag.String("servicePort", "30020", "service port of this application")
+	configServerUrl := flag.String("configServerUrl", os.Getenv("CONFIG_SERVER"), "Address to config server")
+	serviceName := flag.String("serviceName", os.Getenv("SERVICE_NAME"), "service name of this application")
+	servicePort := flag.String("servicePort", os.Getenv("SMS_SERVICE_PORT"), "service port of this application")
+	// configServerUrl := flag.String("configServerUrl", "http://139.150.75.239:8888", "Address to config server")
+	// serviceName := flag.String("serviceName", "sms-service", "service name of this application")
+	// servicePort := flag.String("servicePort", "30020", "service port of this application")
 	profile := flag.String("profile", "default", "Environment profile, something similar to spring profiles")
 	configBranch := flag.String("configBranch", "master", "git branch to fetch configuration from")
 
