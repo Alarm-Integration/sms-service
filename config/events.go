@@ -15,7 +15,7 @@ func StartListener(amqpURI, exchange, exchangeType, queueName, bindingKey, consu
 		log.Fatalf("%s", err)
 	}
 
-	log.Printf("running forever")
+	log.Printf("RabbitMQ is running")
 	select {}
 
 }
