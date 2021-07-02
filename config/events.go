@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/GreatLaboratory/go-sms/model"
 	"github.com/spf13/viper"
 	"github.com/streadway/amqp"
 )
@@ -20,41 +21,34 @@ func StartListener(amqpURI, exchange, exchangeType, queueName, bindingKey, consu
 
 }
 
-type consumer struct {
-	conn    *amqp.Connection
-	channel *amqp.Channel
-	tag     string
-	done    chan error
-}
-
 func newConsumer(amqpURI, exchange, exchangeType, queueName, bindingKey, consumerTag string) error {
-	c := &consumer{
-		conn:    nil,
-		channel: nil,
-		tag:     consumerTag,
-		done:    make(chan error),
+	c := &model.Consumer{
+		Conn:    nil,
+		Channel: nil,
+		Tag:     consumerTag,
+		Done:    make(chan error),
 	}
 
 	var err error
 
 	log.Printf("[RabbitMQ] dialing %s", amqpURI)
-	c.conn, err = amqp.Dial(amqpURI)
+	c.Conn, err = amqp.Dial(amqpURI)
 	if err != nil {
 		return fmt.Errorf("[RabbitMQ] dial: %s", err)
 	}
 
 	go func() {
-		fmt.Printf("[RabbitMQ] closing: %s", <-c.conn.NotifyClose(make(chan *amqp.Error)))
+		fmt.Printf("[RabbitMQ] closing: %s", <-c.Conn.NotifyClose(make(chan *amqp.Error)))
 	}()
 
 	log.Printf("[RabbitMQ] got Connection, getting Channel")
-	c.channel, err = c.conn.Channel()
+	c.Channel, err = c.Conn.Channel()
 	if err != nil {
 		return fmt.Errorf("[RabbitMQ] channel: %s", err)
 	}
 
 	log.Printf("[RabbitMQ] got Channel, declaring Exchange (%s)", exchange)
-	if err = c.channel.ExchangeDeclare(
+	if err = c.Channel.ExchangeDeclare(
 		exchange,     // name of the exchange
 		exchangeType, // type
 		true,         // durable
@@ -67,7 +61,7 @@ func newConsumer(amqpURI, exchange, exchangeType, queueName, bindingKey, consume
 	}
 
 	log.Printf("[RabbitMQ] declared Exchange, declaring Queue %s", queueName)
-	queue, err := c.channel.QueueDeclare(
+	queue, err := c.Channel.QueueDeclare(
 		queueName, // name of the queue
 		false,     // durable
 		false,     // delete when unused
@@ -82,7 +76,7 @@ func newConsumer(amqpURI, exchange, exchangeType, queueName, bindingKey, consume
 	log.Printf("[RabbitMQ] declared Queue (%s %d messages, %d consumers), binding to Exchange (key %s)",
 		queue.Name, queue.Messages, queue.Consumers, bindingKey)
 
-	if err = c.channel.QueueBind(
+	if err = c.Channel.QueueBind(
 		queue.Name, // name of the queue
 		bindingKey, // bindingKey
 		exchange,   // sourceExchange
@@ -92,10 +86,10 @@ func newConsumer(amqpURI, exchange, exchangeType, queueName, bindingKey, consume
 		return fmt.Errorf("[RabbitMQ] queue Bind: %s", err)
 	}
 
-	log.Printf("[RabbitMQ] Queue bound to Exchange, starting Consume (consumer tag %s)", c.tag)
-	deliveries, err := c.channel.Consume(
+	log.Printf("[RabbitMQ] Queue bound to Exchange, starting Consume (consumer tag %s)", c.Tag)
+	deliveries, err := c.Channel.Consume(
 		queue.Name, // name
-		c.tag,      // consumerTag,
+		c.Tag,      // consumerTag,
 		false,      // noAck
 		false,      // exclusive
 		false,      // noLocal
@@ -106,7 +100,7 @@ func newConsumer(amqpURI, exchange, exchangeType, queueName, bindingKey, consume
 		return fmt.Errorf("[RabbitMQ] queue Consume: %s", err)
 	}
 
-	go handle(deliveries, c.done)
+	go handle(deliveries, c.Done)
 
 	return nil
 }
@@ -129,26 +123,17 @@ func handle(deliveries <-chan amqp.Delivery, done chan error) {
 }
 
 func handleRefreshEvent(body []byte, consumerTag string) {
-	updateToken := &UpdateToken{}
+	updateToken := &model.UpdateToken{}
 	err := json.Unmarshal(body, updateToken)
 	if err != nil {
-		log.Printf("[Config] Problem parsing UpdateToken: %v", err.Error())
-	} else {
-		log.Println("[Config] Reloading Viper config from Spring Cloud Config server")
-
-		// Consumertag is same as application name.
-		LoadConfigurationFromBranch(
-			viper.GetString("configServerUrl"),
-			consumerTag,
-			viper.GetString("profile"),
-			viper.GetString("configBranch"))
+		panic("[Config] Problem parsing UpdateToken: %v" + err.Error())
 	}
-}
+	log.Println("[Config] Reloading Viper config from Spring Cloud Config server")
 
-type UpdateToken struct {
-	Type               string `json:"type"`
-	Timestamp          int    `json:"timestamp"`
-	OriginService      string `json:"originService"`
-	DestinationService string `json:"destinationService"`
-	Id                 string `json:"id"`
+	// Consumertag is same as application name.
+	LoadConfigurationFromBranch(
+		viper.GetString("configServerUrl"),
+		consumerTag,
+		viper.GetString("profile"),
+		viper.GetString("configBranch"))
 }
