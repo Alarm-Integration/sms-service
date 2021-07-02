@@ -12,6 +12,10 @@ func (d messageType) String() string {
 	return [...]string{"SMS", "LMS", "MMS"}[d]
 }
 
+type RequestBody struct {
+	Messages []SendMessageDto `json:"messages"`
+}
+
 type SendMessageDto struct {
 	To   string `json:"to"`
 	From string `json:"from"`
