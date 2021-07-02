@@ -53,11 +53,6 @@ func createClient() *coolsms.Client {
 // 메세지 발송을 위한 그룹 생성
 func createGroup(params map[string]string) (string, error) {
 	client := createClient()
-	fmt.Println("###########", client.Messages.Config["APIKey"])
-	fmt.Println("###########", client.Messages.Config["APISecret"])
-	fmt.Println("###########", client.Messages.Config["Protocol"])
-	fmt.Println("###########", client.Messages.Config["Domain"])
-	fmt.Println("###########", client.Messages.Config["Prefix"])
 	createdGroup, err := client.Messages.CreateGroup(params)
 	if err != nil {
 		return "", err
