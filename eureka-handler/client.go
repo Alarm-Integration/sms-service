@@ -135,18 +135,18 @@ func (c *Client) handleSignal() {
 	}
 }
 
-func NewClient(config *Config) (*Client, error) {
+func NewClient(config *Config) *Client {
 	defaultConfig(config)
 	ip := viper.GetString("eureka.client")
 	if ip == "" {
 		localIP := getLocalIP()
 		if err := util.IsStringType(localIP); err != nil {
-			return nil, err
+			panic(err)
 		}
 		ip = localIP
 	}
 	config.instance = NewInstance(ip, config)
-	return &Client{Config: config}, nil
+	return &Client{Config: config}
 }
 
 func defaultConfig(config *Config) {

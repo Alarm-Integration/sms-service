@@ -19,6 +19,9 @@ go tool cover -func=coverage.out
 
 # measure test coverage by using html
 go tool cover -html=coverage.out
+
+# gocovey - localhost:8080
+gocovey
 ```
 
 ## Docker

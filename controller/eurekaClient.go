@@ -6,7 +6,7 @@ import (
 
 func ReigsterEurekaClient(defaultzone, app string, port int) error {
 
-	client, clientCreateErr := eurekaHandler.NewClient(&eurekaHandler.Config{
+	client := eurekaHandler.NewClient(&eurekaHandler.Config{
 		DefaultZone:           defaultzone,
 		App:                   app,
 		Port:                  port,
@@ -22,12 +22,8 @@ func ReigsterEurekaClient(defaultzone, app string, port int) error {
 		},
 	})
 
-	if clientCreateErr != nil {
-		return clientCreateErr
-	}
-
-	if clientStartErr := client.Start(); clientStartErr != nil {
-		return clientStartErr
+	if err := client.Start(); err != nil {
+		return err
 	}
 
 	return nil
