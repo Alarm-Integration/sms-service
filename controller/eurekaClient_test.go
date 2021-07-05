@@ -1,9 +1,8 @@
-package controller_test
+package controller
 
 import (
 	"testing"
 
-	"github.com/GreatLaboratory/go-sms/controller"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,7 +14,7 @@ func Test_Eureka_Registration_Success(t *testing.T) {
 	port := 30020
 
 	// when
-	err := controller.ReigsterEurekaClient(defaultzone, app, port)
+	err := ReigsterEurekaClient(defaultzone, app, port)
 
 	// then
 	assert.Nil(t, err)
@@ -31,7 +30,7 @@ func Test_Eureka_Registration_Fail(t *testing.T) {
 	expectedErrorString := "[Eureka] client registration failed"
 
 	// when
-	err := controller.ReigsterEurekaClient(defaultzone, app, port)
+	err := ReigsterEurekaClient(defaultzone, app, port)
 
 	// then
 	assert.NotNil(t, err)

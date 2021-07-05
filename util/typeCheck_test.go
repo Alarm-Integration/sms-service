@@ -1,10 +1,9 @@
-package util_test
+package util
 
 import (
 	"errors"
 	"testing"
 
-	"github.com/GreatLaboratory/go-sms/util"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,7 +13,7 @@ func Test_Error_Type_Check_Success(t *testing.T) {
 	errValue := errors.New("this is error type")
 
 	// when
-	result := util.IsErrorType(errValue)
+	result := IsErrorType(errValue)
 
 	// then
 	assert.Nil(t, result)
@@ -28,7 +27,7 @@ func Test_Error_Type_Check_Fail(t *testing.T) {
 	expectedError := "this is not error type"
 
 	// when
-	result := util.IsErrorType(strValue)
+	result := IsErrorType(strValue)
 
 	// then
 	assert.NotNil(t, result)
@@ -42,7 +41,7 @@ func Test_Integer_Type_Check_Success(t *testing.T) {
 	intValue := 30020
 
 	// when
-	result := util.IsIntegerType(intValue)
+	result := IsIntegerType(intValue)
 
 	// then
 	assert.Nil(t, result)
@@ -56,7 +55,7 @@ func Test_Integer_Type_Check_Fail(t *testing.T) {
 	expectedError := "this is not integer type"
 
 	// when
-	result := util.IsIntegerType(strValue)
+	result := IsIntegerType(strValue)
 
 	// then
 	assert.NotNil(t, result)
@@ -70,7 +69,7 @@ func Test_String_Type_Check_Success(t *testing.T) {
 	strValue := "this is string type"
 
 	// when
-	result := util.IsStringType(strValue)
+	result := IsStringType(strValue)
 
 	// then
 	assert.Nil(t, result)
@@ -84,7 +83,7 @@ func Test_String_Type_Check_Fail(t *testing.T) {
 	expectedError := "this is not string type"
 
 	// when
-	result := util.IsStringType(intValue)
+	result := IsStringType(intValue)
 
 	// then
 	assert.NotNil(t, result)

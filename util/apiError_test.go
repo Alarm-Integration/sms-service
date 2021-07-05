@@ -1,4 +1,4 @@
-package util_test
+package util
 
 import (
 	"errors"
@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/GreatLaboratory/go-sms/util"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,7 +15,7 @@ func Test_Error_Handle_No_Error(t *testing.T) {
 	errMsg := "this is no error test %s"
 
 	// when
-	err := util.ErrorHandle(errMsg, nil)
+	err := ErrorHandle(errMsg, nil)
 
 	// then
 	assert.Nil(t, err)
@@ -29,7 +28,7 @@ func Test_Error_Handle_With_Error(t *testing.T) {
 	errValue := errors.New("test")
 
 	// when
-	err := util.ErrorHandle(errMsg, errValue)
+	err := ErrorHandle(errMsg, errValue)
 
 	// then
 	assert.NotNil(t, err)
@@ -44,12 +43,12 @@ func Test_Error_Handle_With_Status_Code(t *testing.T) {
 	statusCode2 := 404
 
 	// when
-	err1 := util.ErrorHandle(errMsg, nil, statusCode1)
-	err2 := util.ErrorHandle(errMsg, nil, statusCode2)
+	err1 := ErrorHandle(errMsg, nil, statusCode1)
+	err2 := ErrorHandle(errMsg, nil, statusCode2)
 
 	// then
 	assert.NotNil(t, err1)
 	assert.EqualError(t, err1, fmt.Sprintf(errMsg, strconv.Itoa(statusCode1)))
 	assert.NotNil(t, err2)
-	assert.EqualError(t, err2, util.ErrNotFound.Error())
+	assert.EqualError(t, err2, ErrNotFound.Error())
 }
