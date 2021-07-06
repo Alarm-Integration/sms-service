@@ -26,7 +26,7 @@ func ConvertByteToDtoList(byteValue []byte) (model.RequestBody, error) {
 	for _, receiver := range topicMessageDto.Raws {
 		sendMessageData := model.SendMessageDto{
 			To:   receiver,
-			From: topicMessageDto.Sender,
+			From: "01092988726",
 			Text: text,
 			Type: messageType,
 		}
@@ -36,7 +36,7 @@ func ConvertByteToDtoList(byteValue []byte) (model.RequestBody, error) {
 	fmt.Println("=====================================================")
 	fmt.Println("title : ", topicMessageDto.Title)
 	fmt.Println("content : ", topicMessageDto.Content)
-	fmt.Println("sender : ", topicMessageDto.Sender)
+	//fmt.Println("sender : ", topicMessageDto.Sender)
 	fmt.Println("traceId : ", topicMessageDto.TraceID)
 	fmt.Println("userId : ", topicMessageDto.UserID)
 	for i, v := range topicMessageDto.Raws {
