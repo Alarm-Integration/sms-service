@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
-	"github.com/stretchr/testify/assert"
 )
 
 func Test_Error_Handle_No_Error(t *testing.T) {
@@ -19,7 +18,7 @@ func Test_Error_Handle_No_Error(t *testing.T) {
 			err := ErrorHandle(errMsg, nil)
 
 			Convey("Then", func() {
-				assert.Nil(t, err)
+				So(err, ShouldBeNil)
 			})
 		})
 	})
@@ -35,8 +34,8 @@ func Test_Error_Handle_With_Error(t *testing.T) {
 			err := ErrorHandle(errMsg, errValue)
 
 			Convey("Then", func() {
-				assert.NotNil(t, err)
-				assert.EqualError(t, err, fmt.Sprintf(errMsg, errValue))
+				So(err, ShouldNotBeNil)
+				So(err, ShouldBeError, fmt.Sprintf(errMsg, errValue))
 			})
 		})
 	})
@@ -58,14 +57,14 @@ func Test_Error_Handle_With_Status_Code(t *testing.T) {
 			err4 := ErrorHandle(errMsg, err)
 
 			Convey("Then", func() {
-				assert.NotNil(t, err1)
-				assert.EqualError(t, err1, fmt.Sprintf(errMsg, strconv.Itoa(statusCode1)))
-				assert.NotNil(t, err2)
-				assert.EqualError(t, err2, ErrNotFound.Error())
-				assert.NotNil(t, err3)
-				assert.EqualError(t, err3, "this is not integer type")
-				assert.NotNil(t, err4)
-				assert.EqualError(t, err4, "this is not error type")
+				So(err1, ShouldNotBeNil)
+				So(err1, ShouldBeError, fmt.Sprintf(errMsg, strconv.Itoa(statusCode1)))
+				So(err2, ShouldNotBeNil)
+				So(err2, ShouldBeError, ErrNotFound.Error())
+				So(err3, ShouldNotBeNil)
+				So(err3, ShouldBeError, "this is not integer type")
+				So(err4, ShouldNotBeNil)
+				So(err4, ShouldBeError, "this is not error type")
 			})
 		})
 	})

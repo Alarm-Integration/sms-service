@@ -3,7 +3,6 @@ package util
 import (
 	"github.com/GreatLaboratory/go-sms/model"
 	. "github.com/smartystreets/goconvey/convey"
-	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -38,8 +37,9 @@ func Test_Convert_Message_Success_SMS(t *testing.T) {
 			actualDtoList, err := ConvertByteToDtoList(topicMessageByte)
 
 			Convey("Then topic message byte converted", func() {
-				assert.Nil(t, err)
-				assert.Equal(t, expectedDtoList, actualDtoList)
+				So(err, ShouldBeNil)
+				So(actualDtoList, ShouldResemble, expectedDtoList)
+				So(actualDtoList, ShouldHaveSameTypeAs, expectedDtoList)
 			})
 		})
 	})
@@ -71,8 +71,9 @@ func Test_Convert_Message_Success_LMS(t *testing.T) {
 			actualDtoList, err := ConvertByteToDtoList(topicMessageByte)
 
 			Convey("Then topic message byte converted", func() {
-				assert.Nil(t, err)
-				assert.Equal(t, expectedDtoList, actualDtoList)
+				So(err, ShouldBeNil)
+				So(actualDtoList, ShouldResemble, expectedDtoList)
+				So(actualDtoList, ShouldHaveSameTypeAs, expectedDtoList)
 			})
 		})
 	})
@@ -82,13 +83,14 @@ func Test_Convert_Message_Fail(t *testing.T) {
 
 	Convey("Given wrong topic message byte received", t, func() {
 		topicMessageByte := []byte("byte-test")
+		expectedDtoList := model.RequestBody{Messages: []model.SendMessageDto(nil)}
 
 		Convey("When convert byte array to sendMessageDtoList", func() {
 			actualDtoList, err := ConvertByteToDtoList(topicMessageByte)
 
 			Convey("Then a refresh event received", func() {
-				assert.Equal(t, model.RequestBody{Messages: []model.SendMessageDto(nil)}, actualDtoList)
-				assert.EqualError(t, err, "invalid character 'b' looking for beginning of value")
+				So(actualDtoList, ShouldResemble, expectedDtoList)
+				So(err, ShouldBeError, "invalid character 'b' looking for beginning of value")
 			})
 		})
 	})
