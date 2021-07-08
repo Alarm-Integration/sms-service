@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -16,7 +17,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-const uri string = "http://api.coolsms.co.kr/messages/v4/send-many"
+const URI string = "http://api.coolsms.co.kr/messages/v4/send-many"
 
 func SendMessage(requestBody model.RequestBody) error {
 	out, err := json.Marshal(requestBody)
@@ -26,12 +27,13 @@ func SendMessage(requestBody model.RequestBody) error {
 
 	requestBodyString := string(out)
 	data := strings.NewReader(requestBodyString)
-	req, err := http.NewRequest("POST", uri, data)
+	req, err := http.NewRequest("POST", URI, data)
 	if err != nil {
 		return err
 	}
 
-	req.Header.Set("Authorization", getAuthorization(viper.GetString("sms.APIKey"), viper.GetString("sms.APISecret")))
+	authorization := getAuthorization(viper.GetString("sms.APIKey"), viper.GetString("sms.APISecret"))
+	req.Header.Set("Authorization", authorization)
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
@@ -42,8 +44,16 @@ func SendMessage(requestBody model.RequestBody) error {
 	defer resp.Body.Close()
 
 	bytes, _ := ioutil.ReadAll(resp.Body)
-	str := string(bytes)
-	fmt.Println(str)
+	var response model.SendMessageResponseDto
+	if err := json.Unmarshal(bytes, &response); err != nil {
+		return err
+	}
+
+	for _, logValue := range response.Log {
+		log.Println(logValue["message"])
+	}
+
+	log.Printf("%v개의 알림발송 시도 중 성공 : %v // 실패 : %v", response.Count.Total, response.Count.RegisteredSuccess, response.Count.RegisteredFailed)
 
 	return nil
 }
