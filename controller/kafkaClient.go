@@ -9,20 +9,20 @@ import (
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 )
 
-func ConnectKafkaConsumer(kafkaServer, groupId string, topics []string, isTest ...bool) error {
-	consumer, createErr := kafka.NewConsumer(&kafka.ConfigMap{
-		"bootstrap.servers": kafkaServer,
-		"group.id":          groupId,
-		"auto.offset.reset": "earliest",
-	})
+var (
+	createClientErr   = errors.New("[Kafka] consumer create failed")
+	subscribeTopicErr = errors.New("[Kafka] consumer topic subscribe failed")
+)
 
+func ConnectKafkaConsumer(config *kafka.ConfigMap, topics []string, isTest ...bool) error {
+	consumer, createErr := createConsumer(config)
 	if createErr != nil {
-		return errors.New("[Kafka] consumer create failed")
+		return createErr
 	}
 
-	subscribeErr := consumer.SubscribeTopics(topics, nil)
+	subscribeErr := subscribeTopics(consumer, topics)
 	if subscribeErr != nil {
-		return errors.New("[Kafka] consumer topic subscribe failed")
+		return subscribeErr
 	}
 
 	fmt.Println("[Kafka] Connection Success")
@@ -39,7 +39,6 @@ func ConnectKafkaConsumer(kafkaServer, groupId string, topics []string, isTest .
 			fmt.Println("[Kafka] Consumed Message Topic Partition : ", msg.TopicPartition)
 			fmt.Println("[Kafka] Consumed Message Topic Value : ", string(msg.Value))
 
-			// params := make(map[string]string)
 			requestBody, err := util.ConvertByteToDtoList(msg.Value)
 			if err != nil {
 				fmt.Println("[Kafka] Convert Error : ", err)
@@ -52,4 +51,21 @@ func ConnectKafkaConsumer(kafkaServer, groupId string, topics []string, isTest .
 			}
 		}
 	}
+}
+
+func createConsumer(config *kafka.ConfigMap) (*kafka.Consumer, error) {
+	consumer, err := kafka.NewConsumer(config)
+	if err != nil {
+		fmt.Println(err)
+		return nil, createClientErr
+	}
+	return consumer, nil
+}
+
+func subscribeTopics(consumer *kafka.Consumer, topics []string) error {
+	err := consumer.SubscribeTopics(topics, nil)
+	if err != nil {
+		return subscribeTopicErr
+	}
+	return nil
 }

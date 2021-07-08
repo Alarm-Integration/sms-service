@@ -3,12 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
-	"os"
-	"strconv"
-
 	"github.com/GreatLaboratory/go-sms/config"
 	"github.com/GreatLaboratory/go-sms/controller"
+	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/spf13/viper"
+	"os"
+	"strconv"
 )
 
 // init function, runs before main()
@@ -24,9 +24,9 @@ func init() {
 	configServerUrl := flag.String("configServerUrl", os.Getenv("CONFIG_SERVER"), "Address to config server")
 	serviceName := flag.String("serviceName", os.Getenv("SERVICE_NAME"), "service name of this application")
 	servicePort := flag.String("servicePort", os.Getenv("SMS_SERVICE_PORT"), "service port of this application")
-	// configServerUrl := flag.String("configServerUrl", "http://139.150.75.239:8888", "Address to config server")
-	// serviceName := flag.String("serviceName", "sms-service", "service name of this application")
-	// servicePort := flag.String("servicePort", "30020", "service port of this application")
+	//configServerUrl := flag.String("configServerUrl", "http://139.150.75.239:8888", "Address to config server")
+	//serviceName := flag.String("serviceName", "sms-service", "service name of this application")
+	//servicePort := flag.String("servicePort", "30020", "service port of this application")
 	profile := flag.String("profile", "default", "Environment profile, something similar to spring profiles")
 	configBranch := flag.String("configBranch", "master", "git branch to fetch configuration from")
 
@@ -59,5 +59,10 @@ func main() {
 
 	// 2. Connect to Kafka Broker (if consuming message, send sms alarm)
 	fmt.Println("[KAFKA] Start Connection!!!")
-	controller.ConnectKafkaConsumer(viper.GetString("kafka.server"), viper.GetString("serviceName"), []string{"sms"})
+	controller.ConnectKafkaConsumer(&kafka.ConfigMap{
+		//"bootstrap.servers": viper.GetString("kafka.server"),
+		"bootstrap.servers": fmt.Sprintf("%v,%v,%v", viper.GetString("kafka.broker01"), viper.GetString("kafka.broker02"), viper.GetString("kafka.broker03")),
+		"group.id":          viper.GetString("serviceName"),
+		"auto.offset.reset": "earliest",
+	}, []string{"sms"})
 }
