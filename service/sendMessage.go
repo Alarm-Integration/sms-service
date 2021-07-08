@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -50,10 +49,10 @@ func SendMessage(requestBody model.RequestBody) error {
 	}
 
 	for _, logValue := range response.Log {
-		log.Println(logValue["message"])
+		fmt.Println(logValue["message"])
 	}
 
-	log.Printf("%v개의 알림발송 시도 중 성공 : %v // 실패 : %v", response.Count.Total, response.Count.RegisteredSuccess, response.Count.RegisteredFailed)
+	fmt.Printf("%v개의 알림발송 시도 중 성공 : %v // 실패 : %v", response.Count.Total, response.Count.RegisteredSuccess, response.Count.RegisteredFailed)
 
 	return nil
 }
@@ -69,7 +68,7 @@ func getAuthorization(apiKey string, apiSecret string) string {
 }
 
 func randomString(n int) string {
-	b := make([]byte, 20)
+	b := make([]byte, n)
 	_, _ = cr.Read(b)
 	return hex.EncodeToString(b)
 }
