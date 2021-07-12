@@ -13,7 +13,7 @@ func Test_Convert_Message_Success_SMS(t *testing.T) {
 										"userId":30000000000,
 										"traceId":"1",
 										"groupId":null,
-										"raws":["01092988726","01023255906"],
+										"receivers":["01092988726","01023255906"],
 										"title":"Hello?",
 										"content":"안녕하세요 좋은 발표 시간입니다."
                         			}`)
@@ -52,7 +52,7 @@ func Test_Convert_Message_Success_LMS(t *testing.T) {
 										"userId":30000000000,
 										"traceId":"1",
 										"groupId":null,
-										"raws":["01092988726"],
+										"receivers":["01092988726"],
 										"title":"Hello?",
 										"content":"안녕하세요 좋은 발표 시간입니다.안녕하세요 좋은 발표 시간입니다. 안녕하세요 좋은 발표 시간입니다. 안녕하세요 좋은 발표 시간입니다.안녕하세요 좋은 발표 시간입니다. 안녕하세요 좋은 발표 시간입니다. 안녕하세요 좋은 발표 시간입니다.안녕하세요 좋은 발표 시간입니다. 안녕하세요 좋은 발표 시간입니다."
                         			}`)
