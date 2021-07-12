@@ -24,12 +24,12 @@ type SendMessageDto struct {
 }
 
 type TopicMessageDto struct {
-	Title   string   `json:"title"`
-	Content string   `json:"content"`
-	Sender  string   `json:"sender"`
-	TraceID string   `json:"traceId"`
-	UserID  int      `json:"userId"`
-	Raws    []string `json:"raws"`
+	Title     string   `json:"title"`
+	Content   string   `json:"content"`
+	Sender    string   `json:"sender"`
+	TraceID   string   `json:"traceId"`
+	UserID    int      `json:"userId"`
+	Receivers []string `json:"receivers"`
 }
 
 type SendMessageResponseDto struct {

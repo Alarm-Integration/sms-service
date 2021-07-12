@@ -23,7 +23,7 @@ func ConvertByteToDtoList(byteValue []byte) (model.RequestBody, error) {
 	} else {
 		messageType = model.LMS.String()
 	}
-	for _, receiver := range topicMessageDto.Raws {
+	for _, receiver := range topicMessageDto.Receivers {
 		sendMessageData := model.SendMessageDto{
 			To:   receiver,
 			From: "01092988726",
@@ -39,7 +39,7 @@ func ConvertByteToDtoList(byteValue []byte) (model.RequestBody, error) {
 	//fmt.Println("sender : ", topicMessageDto.Sender)
 	fmt.Println("traceId : ", topicMessageDto.TraceID)
 	fmt.Println("userId : ", topicMessageDto.UserID)
-	for i, v := range topicMessageDto.Raws {
+	for i, v := range topicMessageDto.Receivers {
 		fmt.Println("receiver", i, " : ", v)
 	}
 	fmt.Println("=====================================================")
