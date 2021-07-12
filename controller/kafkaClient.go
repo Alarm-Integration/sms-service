@@ -14,7 +14,7 @@ var (
 	subscribeTopicErr = errors.New("[Kafka] consumer topic subscribe failed")
 )
 
-func ConnectKafkaConsumer(config *kafka.ConfigMap, topics []string, isTest ...bool) error {
+func ConnectKafkaConsumer(config *kafka.ConfigMap, topics []string) error {
 	consumer, createErr := createConsumer(config)
 	if createErr != nil {
 		return createErr
@@ -29,10 +29,6 @@ func ConnectKafkaConsumer(config *kafka.ConfigMap, topics []string, isTest ...bo
 	for {
 		msg, err := consumer.ReadMessage(-1)
 		if err != nil {
-			if len(isTest) != 0 && isTest[0] {
-				consumer.Close()
-				return errors.New(err.Error())
-			}
 			// The client will automatically try to recover from all errors.
 			fmt.Printf("[Kafka] Connection Error: %v (%v)\n", err, msg)
 		} else {
