@@ -31,22 +31,23 @@ func ConnectKafkaConsumer(config *kafka.ConfigMap, topics []string) error {
 		if err != nil {
 			// The client will automatically try to recover from all errors.
 			fmt.Printf("[Kafka] Connection Error: %v (%v)\n", err, msg)
-		} else {
-			fmt.Println("[Kafka] Consumed Message Topic Partition : ", msg.TopicPartition)
-			fmt.Println("[Kafka] Consumed Message Topic Value : ", string(msg.Value))
+			continue
+		}
 
-			requestBody, err := util.ConvertByteToDtoList(msg.Value)
-			if err != nil {
-				fmt.Println("[Kafka] Convert Error : ", err)
-			} else {
-				err := smsService.SendMessage(requestBody)
-				if err != nil {
-					fmt.Println("[SMS] Send Error : ", err)
-				}
+		fmt.Println("[Kafka] Consumed Message Topic Partition : ", msg.TopicPartition)
+		fmt.Println("[Kafka] Consumed Message Topic Value : ", string(msg.Value))
+		requestBody, err := util.ConvertByteToDtoList(msg.Value)
+		if err != nil {
+			fmt.Println("[Kafka] Convert Error : ", err)
+			continue
+		}
 
-			}
+		err = smsService.SendMessage(requestBody)
+		if err != nil {
+			fmt.Println("[SMS] Send Error : ", err)
 		}
 	}
+
 }
 
 func createConsumer(config *kafka.ConfigMap) (*kafka.Consumer, error) {
