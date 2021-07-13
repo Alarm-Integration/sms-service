@@ -39,10 +39,7 @@ func (c *Client) Start() error {
 }
 
 func (c *Client) refresh() {
-	for {
-		if !c.Running {
-			break
-		}
+	for c.Running {
 		if err := c.doRefresh(); err != nil {
 			log.Println(err)
 		} else {
@@ -54,10 +51,7 @@ func (c *Client) refresh() {
 }
 
 func (c *Client) heartbeat() {
-	for {
-		if !c.Running {
-			break
-		}
+	for c.Running {
 		if err := c.doHeartbeat(); err != nil {
 			if err == ErrNotFound {
 				log.Println("[Eureka] heartbeat Not Found, need register")
