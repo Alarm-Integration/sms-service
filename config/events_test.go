@@ -100,27 +100,6 @@ func Test_Handle_Refresh_Event_Fail(t *testing.T) {
 	})
 }
 
-func Test_NewConsumer_Fail(t *testing.T) {
-
-	Convey("Given", t, func() {
-		amqpURI := "amqp://test-server:5762"
-		exchange := "test"
-		exchangeType := "topic"
-		queueName := "test-queue"
-		bindingKey := "springCloudBusTest"
-		consumerTag := "test"
-		expectedErr := "[RabbitMQ] dial: dial tcp: lookup test-server: no such host"
-
-		Convey("When", func() {
-			err := newConsumer(amqpURI, exchange, exchangeType, queueName, bindingKey, consumerTag)
-
-			Convey("Then", func() {
-				t.Log("[RabbitMQ] dialing amqp://test-server:8761")
-				So(err, ShouldBeError, expectedErr)
-			})
-		})
-	})
-}
 func Test_StartListener_Fail(t *testing.T) {
 
 	Convey("Given", t, func() {
