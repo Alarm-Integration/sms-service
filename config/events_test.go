@@ -1,6 +1,8 @@
 package config
 
 import (
+	"os"
+	"os/exec"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -93,6 +95,58 @@ func Test_Handle_Refresh_Event_Fail(t *testing.T) {
 
 			Convey("Then handleRefreshEvent function should panic with unmarshal error", func() {
 				So(panicFunc, ShouldPanicWith, "[Config] Problem parsing UpdateToken: %vinvalid character 'w' looking for beginning of object key string")
+			})
+		})
+	})
+}
+
+func Test_NewConsumer_Fail(t *testing.T) {
+
+	Convey("Given", t, func() {
+		amqpURI := "amqp://test-server:5762"
+		exchange := "test"
+		exchangeType := "topic"
+		queueName := "test-queue"
+		bindingKey := "springCloudBusTest"
+		consumerTag := "test"
+		expectedErr := "[RabbitMQ] dial: dial tcp: lookup test-server: no such host"
+
+		Convey("When", func() {
+			err := newConsumer(amqpURI, exchange, exchangeType, queueName, bindingKey, consumerTag)
+
+			Convey("Then", func() {
+				t.Log("[RabbitMQ] dialing amqp://test-server:8761")
+				So(err, ShouldBeError, expectedErr)
+			})
+		})
+	})
+}
+func Test_StartListener_Fail(t *testing.T) {
+
+	Convey("Given", t, func() {
+		amqpURI := "amqp://test-server:5762"
+		exchange := "test"
+		exchangeType := "topic"
+		queueName := "test-queue"
+		bindingKey := "springCloudBusTest"
+		consumerTag := "test"
+		expectedErr := "exit status 1"
+
+		Convey("When", func() {
+			if os.Getenv("FLAG") == "1" {
+				StartListener(amqpURI, exchange, exchangeType, queueName, bindingKey, consumerTag)
+				return
+			}
+			// Run the test in a subprocess
+			cmd := exec.Command(os.Args[0], "-test.run=Test_StartListener_Fail")
+			cmd.Env = append(os.Environ(), "FLAG=1")
+			err := cmd.Run()
+			err, ok := err.(*exec.ExitError)
+
+			Convey("Then", func() {
+				// Cast the error as *exec.ExitError and compare the result
+				So(ok, ShouldBeTrue)
+				So(err, ShouldBeError, expectedErr)
 			})
 		})
 	})
