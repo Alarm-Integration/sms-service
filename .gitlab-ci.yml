@@ -8,13 +8,13 @@ stages:
 variables:
   CONTAINER_NAME: $SERVICE_NAME
   IMAGE_NAME: $SERVICE_NAME
-  ENVIROMENT: staging
 
 test:
   image: golang:1.16
   stage: test
   script:
     - go test -v -coverprofile=coverage.out ./...
+    - go tool cover -func=coverage.out
   artifacts:
     paths:
       - coverage.out
@@ -47,8 +47,6 @@ build-docker-image:
     - docker login -u $DOCKER_HUB_ID -p $DOCKER_HUB_PASSWORD
     - docker build -t $DOCKER_HUB_ID/$IMAGE_NAME .
     - docker push $DOCKER_HUB_ID/$IMAGE_NAME
-  environment:
-    name: $ENVIROMENT
 
 deploy:
   stage: deploy
@@ -56,6 +54,4 @@ deploy:
     - docker pull $DOCKER_HUB_ID/$IMAGE_NAME
     - docker stop $CONTAINER_NAME || true
     - docker run --rm -d -p $SMS_SERVICE_PORT:$SMS_SERVICE_PORT -e SMS_SERVICE_PORT=$SMS_SERVICE_PORT -e SERVICE_NAME=$SERVICE_NAME -e CONFIG_SERVER=$CONFIG_SERVER --name $CONTAINER_NAME $DOCKER_HUB_ID/$IMAGE_NAME
-  environment:
-    name: $ENVIROMENT
     url: $STAGING_SERVER
