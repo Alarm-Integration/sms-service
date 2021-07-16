@@ -6,12 +6,11 @@ import (
 
 func ReigsterEurekaClient(defaultzone, app string, port int) error {
 
-	client, clientCreateErr := eurekaHandler.NewClient(&eurekaHandler.Config{
-		DefaultZone:           defaultzone,
-		App:                   app,
-		Port:                  port,
-		RenewalIntervalInSecs: 10,
-		DurationInSecs:        30,
+	client := eurekaHandler.NewClient(&eurekaHandler.Config{
+		DefaultZone:    defaultzone,
+		App:            app,
+		Port:           port,
+		DurationInSecs: 30,
 		Metadata: map[string]interface{}{
 			"VERSION":              "0.1.0",
 			"NODE_GROUP_ID":        0,
@@ -22,12 +21,8 @@ func ReigsterEurekaClient(defaultzone, app string, port int) error {
 		},
 	})
 
-	if clientCreateErr != nil {
-		return clientCreateErr
-	}
-
-	if clientStartErr := client.Start(); clientStartErr != nil {
-		return clientStartErr
+	if err := client.Start(); err != nil {
+		return err
 	}
 
 	return nil

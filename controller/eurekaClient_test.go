@@ -1,48 +1,41 @@
-package controller_test
+package controller
 
 import (
-	"os"
-	"strconv"
+	. "github.com/smartystreets/goconvey/convey"
 	"testing"
-
-	"github.com/GreatLaboratory/go-sms/controller"
-	"github.com/stretchr/testify/assert"
 )
 
 func Test_Eureka_Registration_Success(t *testing.T) {
 
-	// given
-	defaultzone := os.Getenv("EUREKA_SERVER")
-	app := "sms-service"
-	port, portErr := strconv.Atoi(os.Getenv("SMS_SERVICE_PORT"))
-	if portErr != nil {
-		port = 30020
-	}
+	Convey("Given", t, func() {
+		defaultzone := "http://10.7.27.18:8761/eureka/"
+		app := "sms-service"
+		port := 30020
 
-	// when
-	err := controller.ReigsterEurekaClient(defaultzone, app, port)
+		Convey("When", func() {
+			err := ReigsterEurekaClient(defaultzone, app, port)
 
-	// then
-	assert.Nil(t, err)
-
+			Convey("Then", func() {
+				So(err, ShouldBeNil)
+			})
+		})
+	})
 }
 
 func Test_Eureka_Registration_Fail(t *testing.T) {
 
-	// given
-	defaultzone := "http://139.150.75.2391234:8761/eureka/"
-	app := "sms-service"
-	port, portErr := strconv.Atoi(os.Getenv("SMS_SERVICE_PORT"))
-	if portErr != nil {
-		port = 30020
-	}
-	expectedErrorString := "client registration failed"
+	Convey("Given", t, func() {
+		defaultzone := "http://139.150.75.2391234:8761/eureka/"
+		app := "sms-service"
+		port := 30020
+		expectedErr := "[Eureka] client registration failed"
 
-	// when
-	err := controller.ReigsterEurekaClient(defaultzone, app, port)
+		Convey("When", func() {
+			err := ReigsterEurekaClient(defaultzone, app, port)
 
-	// then
-	assert.NotNil(t, err)
-	assert.EqualError(t, err, expectedErrorString)
-
+			Convey("Then", func() {
+				So(err, ShouldBeError, expectedErr)
+			})
+		})
+	})
 }

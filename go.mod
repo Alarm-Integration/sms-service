@@ -4,10 +4,12 @@ go 1.16
 
 require (
 	github.com/confluentinc/confluent-kafka-go v1.7.0
-	github.com/coolsms/coolsms-go v0.0.0-20210207190958-75bcf8daa825
-	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/stretchr/objx v0.3.0 // indirect
+	github.com/fluent/fluent-logger-golang v1.6.1 // indirect
+	github.com/smartystreets/goconvey v1.6.4
+	github.com/spf13/viper v1.8.1
+	github.com/streadway/amqp v1.0.0
 	github.com/stretchr/testify v1.7.0
+	github.com/tinylib/msgp v1.1.6 // indirect
 	github.com/xuanbo/requests v0.0.2
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+	gopkg.in/h2non/gock.v1 v1.1.0
 )

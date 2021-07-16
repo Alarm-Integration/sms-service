@@ -24,14 +24,14 @@ func Register(zone, app string, instance *Instance) error {
 
 	result := requests.Post(u).Json(info).Send().Status2xx()
 
-	return util.ErrorHandle("register application instance failed, error: %s", result.Err)
+	return util.ErrorHandle("[Eureka] register application instance failed, error: %s", result.Err)
 }
 
 func UnRegister(zone, app, instanceID string) error {
 	u := zone + "apps/" + app + "/" + instanceID
 	result := requests.Delete(u).Send().StatusOk()
 
-	return util.ErrorHandle("unregister application instance failed, error: %s", result.Err)
+	return util.ErrorHandle("[Eureka] unregister application instance failed, error: %s", result.Err)
 }
 
 func Refresh(zone string) (*Applications, error) {
@@ -45,7 +45,7 @@ func Refresh(zone string) (*Applications, error) {
 	u := zone + "apps"
 	err := requests.Get(u).Header("Accept", " application/json").Send().StatusOk().Json(res)
 
-	return apps, util.ErrorHandle("refresh failed, error: %s", err)
+	return apps, util.ErrorHandle("[Eureka] refresh failed, error: %s", err)
 }
 
 func Heartbeat(zone, app, instanceID string) error {
@@ -55,5 +55,5 @@ func Heartbeat(zone, app, instanceID string) error {
 	}
 	result := requests.Put(u).Params(params).Send()
 
-	return util.ErrorHandle("heartbeat failed, error: %s", result.Err, result.Resp.StatusCode)
+	return util.ErrorHandle("[Eureka] heartbeat failed, error: %s", result.Err, result.Resp.StatusCode)
 }

@@ -11,7 +11,7 @@ var (
 	ErrNotFound = errors.New("not found")
 )
 
-func ErrorHandle(errMsg string, err error, statusCode ...int) error {
+func ErrorHandle(errMsg string, err interface{}, statusCode ...interface{}) error {
 	if err != nil {
 		if typeErr := IsErrorType(err); typeErr != nil {
 			return typeErr
@@ -26,7 +26,8 @@ func ErrorHandle(errMsg string, err error, statusCode ...int) error {
 			if statusCode[0] == http.StatusNotFound {
 				return ErrNotFound
 			}
-			return fmt.Errorf(errMsg, strconv.Itoa(statusCode[0]))
+			res := (statusCode[0]).(int)
+			return fmt.Errorf(errMsg, strconv.Itoa(res))
 		}
 	}
 	return nil

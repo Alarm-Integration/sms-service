@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/GreatLaboratory/go-sms/util"
+	"github.com/spf13/viper"
 )
 
 type Client struct {
@@ -26,9 +27,9 @@ func (c *Client) Start() error {
 
 	if err := c.doRegister(); err != nil {
 		log.Println(err.Error())
-		return errors.New("client registration failed")
+		return errors.New("[Eureka] client registration failed")
 	}
-	log.Println("register application instance successful")
+	log.Println("[Eureka] register application instance successful")
 
 	go c.refresh()
 	go c.heartbeat()
@@ -38,14 +39,11 @@ func (c *Client) Start() error {
 }
 
 func (c *Client) refresh() {
-	for {
-		if !c.Running {
-			break
-		}
+	for c.Running {
 		if err := c.doRefresh(); err != nil {
 			log.Println(err)
 		} else {
-			log.Println("refresh application instance successful")
+			log.Println("[Eureka] refresh application instance successful")
 		}
 		sleep := time.Duration(c.Config.RegistryFetchIntervalSeconds)
 		time.Sleep(sleep * time.Second)
@@ -53,13 +51,10 @@ func (c *Client) refresh() {
 }
 
 func (c *Client) heartbeat() {
-	for {
-		if !c.Running {
-			break
-		}
+	for c.Running {
 		if err := c.doHeartbeat(); err != nil {
 			if err == ErrNotFound {
-				log.Println("heartbeat Not Found, need register")
+				log.Println("[Eureka] heartbeat Not Found, need register")
 
 				err = c.doRegister()
 
@@ -68,13 +63,13 @@ func (c *Client) heartbeat() {
 				}
 
 				if err != nil {
-					log.Printf("do register error: %s\n", err)
+					log.Printf("[Eureka] do register error: %s\n", err)
 				}
 				continue
 			}
 			log.Println(err)
 		} else {
-			log.Println("heartbeat application instance successful")
+			log.Println("[Eureka] heartbeat application instance successful")
 		}
 		sleep := time.Duration(c.Config.RenewalIntervalInSecs)
 		time.Sleep(sleep * time.Second)
@@ -122,30 +117,30 @@ func (c *Client) handleSignal() {
 		case syscall.SIGKILL:
 			fallthrough
 		case syscall.SIGTERM:
-			log.Println("receive exit signal, client instance going to de-register")
+			log.Println("[Eureka] receive exit signal, client instance going to de-register")
 			err := c.doUnRegister()
 			if err != nil {
 				log.Println(err.Error())
 			} else {
-				log.Println("unRegister application instance successful")
+				log.Println("[Eureka] unRegister application instance successful")
 			}
 			os.Exit(0)
 		}
 	}
 }
 
-func NewClient(config *Config) (*Client, error) {
+func NewClient(config *Config) *Client {
 	defaultConfig(config)
-	ip := os.Getenv("HOST_IP")
+	ip := viper.GetString("hostIP")
 	if ip == "" {
 		localIP := getLocalIP()
 		if err := util.IsStringType(localIP); err != nil {
-			return nil, err
+			panic(err)
 		}
 		ip = localIP
 	}
 	config.instance = NewInstance(ip, config)
-	return &Client{Config: config}, nil
+	return &Client{Config: config}
 }
 
 func defaultConfig(config *Config) {
