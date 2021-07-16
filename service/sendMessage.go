@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/GreatLaboratory/go-sms/util"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -18,7 +19,7 @@ import (
 
 const URI string = "http://api.coolsms.co.kr/messages/v4/send-many"
 
-func SendMessage(requestBody model.RequestBody) error {
+func SendMessage(requestBody model.RequestBody, alarmResultLog model.AlarmResultLogDto) error {
 	out, err := json.Marshal(requestBody)
 	if err != nil {
 		return err
@@ -53,6 +54,15 @@ func SendMessage(requestBody model.RequestBody) error {
 	}
 
 	fmt.Printf("%v개의 알림발송 시도 중 성공 : %v // 실패 : %v", response.Count.Total, response.Count.RegisteredSuccess, response.Count.RegisteredFailed)
+
+	resultMsg := fmt.Sprintf("%v개의 알림발송 시도 중 성공 : %v // 실패 : %v", response.Count.Total, response.Count.RegisteredSuccess, response.Count.RegisteredFailed)
+	userID := alarmResultLog.UserID
+	traceID := alarmResultLog.TraceID
+
+	err = util.FluentdSender(userID, traceID, resultMsg)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

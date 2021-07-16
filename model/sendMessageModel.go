@@ -111,3 +111,8 @@ type Price struct {
 	CTA float32
 	CTI float32
 }
+
+type AlarmResultLogDto struct {
+	UserID  int    `json:"user_id"`
+	TraceID string `json:"trace_id"`
+}

@@ -35,6 +35,11 @@ func Test_Send_Message_Success(t *testing.T) {
 			"message": "메시지를 발송했습니다.",
 		})
 
+		alarmResultLog := model.AlarmResultLogDto{
+			UserID:  1,
+			TraceID: "test",
+		}
+
 		responseBody := model.SendMessageResponseDto{
 			Count: model.Count{Total: 1, SentTotal: 0, SentFailed: 0, SentSuccess: 0, SentPending: 0, SentReplacement: 0, Refund: 0, RegisteredFailed: 0, RegisteredSuccess: 1},
 			Log:   logValue,
@@ -46,10 +51,9 @@ func Test_Send_Message_Success(t *testing.T) {
 			JSON(responseBody)
 
 		Convey("When sending sms alarm", func() {
-			err := SendMessage(requestBody)
+			SendMessage(requestBody, alarmResultLog)
 
 			Convey("Then sms should be alarmed successfully", func() {
-				So(err, ShouldBeNil)
 				t.Log("메시지 그룹이 생성되었습니다.")
 				t.Log("단문문자(SMS) 1 건이 추가되었습니다.")
 				t.Log("메시지를 발송했습니다.")
@@ -89,6 +93,12 @@ func Test_Send_Message_Fail_By_Wrong_Number(t *testing.T) {
 			Count: model.Count{Total: 1, SentTotal: 0, SentFailed: 0, SentSuccess: 0, SentPending: 0, SentReplacement: 0, Refund: 0, RegisteredFailed: 1, RegisteredSuccess: 0},
 			Log:   logValue,
 		}
+
+		alarmResultLog := model.AlarmResultLogDto{
+			UserID:  1,
+			TraceID: "test",
+		}
+
 		gock.New("http://api.coolsms.co.kr").
 			Post("/messages/v4/send-many").
 			JSON(requestBody).
@@ -96,10 +106,9 @@ func Test_Send_Message_Fail_By_Wrong_Number(t *testing.T) {
 			JSON(responseBody)
 
 		Convey("When sending sms alarm", func() {
-			err := SendMessage(requestBody)
+			SendMessage(requestBody, alarmResultLog)
 
 			Convey("Then sms alarm should be failed", func() {
-				So(err, ShouldBeNil)
 				t.Log("메시지 그룹이 생성되었습니다.")
 				t.Log("단문문자(SMS) 1 건이 추가되었습니다.")
 				t.Log("메시지를 발송했습니다.")

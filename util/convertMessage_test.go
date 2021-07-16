@@ -10,8 +10,8 @@ func Test_Convert_Message_Success_SMS(t *testing.T) {
 
 	Convey("Given topic message byte received (SMS)", t, func() {
 		topicMessageByte := []byte(`{
-										"userId":30000000000,
-										"traceId":"1",
+										"userId":1,
+										"traceId":"test",
 										"groupId":null,
 										"receivers":["01092988726","01023255906"],
 										"title":"Hello?",
@@ -34,12 +34,14 @@ func Test_Convert_Message_Success_SMS(t *testing.T) {
 		}
 
 		Convey("When convert byte array to sendMessageDtoList", func() {
-			actualDtoList, err := ConvertByteToDtoList(topicMessageByte)
+			actualDtoList, actualAlarmResultLog, err := ConvertByteToDtoList(topicMessageByte)
 
 			Convey("Then topic message byte converted", func() {
 				So(err, ShouldBeNil)
 				So(actualDtoList, ShouldResemble, expectedDtoList)
 				So(actualDtoList, ShouldHaveSameTypeAs, expectedDtoList)
+				So(actualAlarmResultLog.UserID, ShouldEqual, 1)
+				So(actualAlarmResultLog.TraceID, ShouldEqual, "test")
 			})
 		})
 	})
@@ -49,8 +51,8 @@ func Test_Convert_Message_Success_LMS(t *testing.T) {
 
 	Convey("Given topic message byte received (LMS)", t, func() {
 		topicMessageByte := []byte(`{
-										"userId":30000000000,
-										"traceId":"1",
+										"userId":1,
+										"traceId":"test",
 										"groupId":null,
 										"receivers":["01092988726"],
 										"title":"Hello?",
@@ -68,12 +70,14 @@ func Test_Convert_Message_Success_LMS(t *testing.T) {
 		}
 
 		Convey("When convert byte array to sendMessageDtoList", func() {
-			actualDtoList, err := ConvertByteToDtoList(topicMessageByte)
+			actualDtoList, actualAlarmResultLog, err := ConvertByteToDtoList(topicMessageByte)
 
 			Convey("Then topic message byte converted", func() {
 				So(err, ShouldBeNil)
 				So(actualDtoList, ShouldResemble, expectedDtoList)
 				So(actualDtoList, ShouldHaveSameTypeAs, expectedDtoList)
+				So(actualAlarmResultLog.UserID, ShouldEqual, 1)
+				So(actualAlarmResultLog.TraceID, ShouldEqual, "test")
 			})
 		})
 	})
@@ -84,12 +88,14 @@ func Test_Convert_Message_Fail(t *testing.T) {
 	Convey("Given wrong topic message byte received", t, func() {
 		topicMessageByte := []byte("byte-test")
 		expectedDtoList := model.RequestBody{Messages: []model.SendMessageDto(nil)}
+		expectedAlarmResultLog := model.AlarmResultLogDto{}
 
 		Convey("When convert byte array to sendMessageDtoList", func() {
-			actualDtoList, err := ConvertByteToDtoList(topicMessageByte)
+			actualDtoList, actualAlarmResultLog, err := ConvertByteToDtoList(topicMessageByte)
 
 			Convey("Then a refresh event received", func() {
 				So(actualDtoList, ShouldResemble, expectedDtoList)
+				So(actualAlarmResultLog, ShouldResemble, expectedAlarmResultLog)
 				So(err, ShouldBeError, "invalid character 'b' looking for beginning of value")
 			})
 		})
