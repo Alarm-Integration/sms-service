@@ -131,7 +131,7 @@ func (c *Client) handleSignal() {
 
 func NewClient(config *Config) *Client {
 	defaultConfig(config)
-	ip := viper.GetString("eureka.client")
+	ip := viper.GetString("hostIP")
 	if ip == "" {
 		localIP := getLocalIP()
 		if err := util.IsStringType(localIP); err != nil {

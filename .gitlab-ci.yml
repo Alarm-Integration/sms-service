@@ -48,9 +48,29 @@ build-docker-image:
     - docker build -t $DOCKER_HUB_ID/$IMAGE_NAME .
     - docker push $DOCKER_HUB_ID/$IMAGE_NAME
 
-deploy:
+g238_deploy:
   stage: deploy
+  tags:
+    - g238
   script:
     - docker pull $DOCKER_HUB_ID/$IMAGE_NAME
     - docker stop $CONTAINER_NAME || true
-    - docker run --rm -d -p $SMS_SERVICE_PORT:$SMS_SERVICE_PORT -e SMS_SERVICE_PORT=$SMS_SERVICE_PORT -e SERVICE_NAME=$SERVICE_NAME -e CONFIG_SERVER=$CONFIG_SERVER --name $CONTAINER_NAME $DOCKER_HUB_ID/$IMAGE_NAME
+    - docker run --rm -d -p $SMS_SERVICE_PORT:$SMS_SERVICE_PORT -e SMS_SERVICE_PORT=$SMS_SERVICE_PORT -e SERVICE_NAME=$SERVICE_NAME -e CONFIG_SERVER=$CONFIG_SERVER -e HOST_IP=$HOST_238_IP --name $CONTAINER_NAME $DOCKER_HUB_ID/$IMAGE_NAME
+
+g239_deploy:
+  stage: deploy
+  tags:
+    - g239
+  script:
+    - docker pull $DOCKER_HUB_ID/$IMAGE_NAME
+    - docker stop $CONTAINER_NAME || true
+    - docker run --rm -d -p $SMS_SERVICE_PORT:$SMS_SERVICE_PORT -e SMS_SERVICE_PORT=$SMS_SERVICE_PORT -e SERVICE_NAME=$SERVICE_NAME -e CONFIG_SERVER=$CONFIG_SERVER -e HOST_IP=$HOST_239_IP --name $CONTAINER_NAME $DOCKER_HUB_ID/$IMAGE_NAME
+
+g240_deploy:
+  stage: deploy
+  tags:
+    - g240
+  script:
+    - docker pull $DOCKER_HUB_ID/$IMAGE_NAME
+    - docker stop $CONTAINER_NAME || true
+    - docker run --rm -d -p $SMS_SERVICE_PORT:$SMS_SERVICE_PORT -e SMS_SERVICE_PORT=$SMS_SERVICE_PORT -e SERVICE_NAME=$SERVICE_NAME -e CONFIG_SERVER=$CONFIG_SERVER -e HOST_IP=$HOST_240_IP --name $CONTAINER_NAME $DOCKER_HUB_ID/$IMAGE_NAME

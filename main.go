@@ -17,6 +17,7 @@ func init() {
 	// If env variables are not defined, terminate app
 	if os.Getenv("SERVICE_NAME") == "" ||
 		os.Getenv("SMS_SERVICE_PORT") == "" ||
+		os.Getenv("HOST_IP") == "" ||
 		os.Getenv("CONFIG_SERVER") == "" {
 		os.Exit(-1)
 	}
@@ -26,6 +27,7 @@ func init() {
 	servicePort := flag.String("servicePort", os.Getenv("SMS_SERVICE_PORT"), "service port of this application")
 	profile := flag.String("profile", "default", "Environment profile, something similar to spring profiles")
 	configBranch := flag.String("configBranch", "master", "git branch to fetch configuration from")
+	hostIP := flag.String("hostIP", os.Getenv("HOST_IP"), "host ip of this docker container")
 
 	flag.Parse()
 
@@ -35,6 +37,7 @@ func init() {
 	viper.Set("configBranch", *configBranch)
 	viper.Set("serviceName", *serviceName)
 	viper.Set("servicePort", *servicePort)
+	viper.Set("hostIP", *hostIP)
 }
 
 func main() {
