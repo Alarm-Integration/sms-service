@@ -8,13 +8,13 @@ stages:
 variables:
   CONTAINER_NAME: $SERVICE_NAME
   IMAGE_NAME: $SERVICE_NAME
-  ENVIROMENT: staging
 
 test:
   image: golang:1.16
   stage: test
   script:
     - go test -v -coverprofile=coverage.out ./...
+    - go tool cover -func=coverage.out
   artifacts:
     paths:
       - coverage.out
@@ -29,22 +29,48 @@ build-go-application:
   artifacts:
     paths:
       - main
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
+    policy: push
+    paths:
+      - main
+
 
 build-docker-image:
   stage: build
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
+    policy: pull
+    paths:
+      - main
   script:
     - docker login -u $DOCKER_HUB_ID -p $DOCKER_HUB_PASSWORD
     - docker build -t $DOCKER_HUB_ID/$IMAGE_NAME .
     - docker push $DOCKER_HUB_ID/$IMAGE_NAME
-  environment:
-    name: $ENVIROMENT
 
-deploy:
+g238_deploy:
   stage: deploy
+  tags:
+    - g238
   script:
     - docker pull $DOCKER_HUB_ID/$IMAGE_NAME
     - docker stop $CONTAINER_NAME || true
-    - docker run --rm -d -p $SMS_SERVICE_PORT:$SMS_SERVICE_PORT -e HOST_IP=$HOST_IP -e SMS_SERVICE_PORT=$SMS_SERVICE_PORT -e SERVICE_NAME=$SERVICE_NAME -e EUREKA_SERVER=$EUREKA_SERVER --network $DOCKER_NETWORK --name $CONTAINER_NAME $DOCKER_HUB_ID/$IMAGE_NAME
-  environment:
-    name: $ENVIROMENT
-    url: $STAGING_SERVER
+    - docker run --rm -d -p $SMS_SERVICE_PORT:$SMS_SERVICE_PORT -e SMS_SERVICE_PORT=$SMS_SERVICE_PORT -e SERVICE_NAME=$SERVICE_NAME -e CONFIG_SERVER=$CONFIG_SERVER -e HOST_IP=$HOST_238_IP --name $CONTAINER_NAME $DOCKER_HUB_ID/$IMAGE_NAME
+
+g239_deploy:
+  stage: deploy
+  tags:
+    - g239
+  script:
+    - docker pull $DOCKER_HUB_ID/$IMAGE_NAME
+    - docker stop $CONTAINER_NAME || true
+    - docker run --rm -d -p $SMS_SERVICE_PORT:$SMS_SERVICE_PORT -e SMS_SERVICE_PORT=$SMS_SERVICE_PORT -e SERVICE_NAME=$SERVICE_NAME -e CONFIG_SERVER=$CONFIG_SERVER -e HOST_IP=$HOST_239_IP --name $CONTAINER_NAME $DOCKER_HUB_ID/$IMAGE_NAME
+
+g240_deploy:
+  stage: deploy
+  tags:
+    - g240
+  script:
+    - docker pull $DOCKER_HUB_ID/$IMAGE_NAME
+    - docker stop $CONTAINER_NAME || true
+    - docker run --rm -d -p $SMS_SERVICE_PORT:$SMS_SERVICE_PORT -e SMS_SERVICE_PORT=$SMS_SERVICE_PORT -e SERVICE_NAME=$SERVICE_NAME -e CONFIG_SERVER=$CONFIG_SERVER -e HOST_IP=$HOST_240_IP --name $CONTAINER_NAME $DOCKER_HUB_ID/$IMAGE_NAME
