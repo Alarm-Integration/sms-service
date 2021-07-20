@@ -20,24 +20,20 @@ import (
 
 const URI string = "http://api.coolsms.co.kr/messages/v4/send"
 
-func SendMessage(requestBody model.SendMessageDto, requestID string) {
-	fmt.Println("###########", requestBody.To)
-	fmt.Println("###########", requestBody.From)
-	fmt.Println("###########", requestBody.Text)
-	fmt.Println("###########", requestBody.Type)
-	realRequestBody := model.SendRequestDto{Message: requestBody}
-	out, err := json.Marshal(realRequestBody)
+func SendMessage(sendMessageDto model.SendMessageDto, requestID string) {
+	requestBody := model.SendRequestDto{Message: sendMessageDto}
+	out, err := json.Marshal(requestBody)
 	if err != nil {
 		log.Fatalf(err.Error())
 	}
 
 	requestBodyString := string(out)
-	fmt.Println("requestBodyString ::: ", requestBodyString)
 	data := strings.NewReader(requestBodyString)
 	req, err := http.NewRequest("POST", URI, data)
 	if err != nil {
 		log.Fatalf(err.Error())
 	}
+
 	authorization := getAuthorization(viper.GetString("sms.APIKey"), viper.GetString("sms.APISecret"))
 	req.Header.Set("Authorization", authorization)
 	req.Header.Set("Content-Type", "application/json")
@@ -60,29 +56,23 @@ func SendMessage(requestBody model.SendMessageDto, requestID string) {
 		if err := json.Unmarshal(bytes, &failResponse); err != nil {
 			log.Fatalf(err.Error())
 		}
-		str := fmt.Sprintf("%#v", failResponse)
-		fmt.Println("################", str)
-
 		isSuccess = false
 		logMessage = failResponse.ErrorCode
-
 		log.Printf("발송 실패 ::: %s", logMessage)
 	} else {
 		if err := json.Unmarshal(bytes, &successResponse); err != nil {
 			log.Fatalf(err.Error())
 		}
-		str := fmt.Sprintf("%#v", successResponse)
-		fmt.Println("################", str)
-
 		isSuccess = true
 		logMessage = successResponse.StatusMessage
 		log.Printf("발송 성공 ::: %s", logMessage)
 	}
 
-	err = util.FluentdSender(isSuccess, requestBody.To, requestID, logMessage)
+	err = util.FluentdSender(isSuccess, sendMessageDto.To, requestID, logMessage)
 	if err != nil {
 		log.Fatalf(err.Error())
 	}
+
 }
 
 func getAuthorization(apiKey string, apiSecret string) string {
