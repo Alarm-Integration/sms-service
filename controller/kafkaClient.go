@@ -36,13 +36,14 @@ func ConnectKafkaConsumer(config *kafka.ConfigMap, topics []string) error {
 
 		fmt.Println("[Kafka] Consumed Message Topic Partition : ", msg.TopicPartition)
 		fmt.Println("[Kafka] Consumed Message Topic Value : ", string(msg.Value))
-		requestBody, alarmResultLog, err := util.ConvertByteToDtoList(msg.Value)
+		requestBody, requestID, err := util.ConvertByteToDtoList(msg.Value)
 		if err != nil {
 			fmt.Println("[Kafka] Convert Error : ", err)
 			continue
 		}
-
-		err = smsService.SendMessage(requestBody, alarmResultLog)
+		for _, sendMessageDto := range requestBody.Messages {
+			go smsService.SendMessage(sendMessageDto, requestID)
+		}
 		if err != nil {
 			fmt.Println("[SMS] Send Error : ", err)
 		}
