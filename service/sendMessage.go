@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/GreatLaboratory/go-sms/util"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -17,19 +18,22 @@ import (
 	"github.com/spf13/viper"
 )
 
-const URI string = "http://api.coolsms.co.kr/messages/v4/send-many"
+const URI string = "http://api.coolsms.co.kr/messages/v4/send"
 
-func SendMessage(requestBody model.RequestBody, alarmResultLog model.AlarmResultLogDto) error {
+func SendMessage(sendMessageDto model.SendMessageDto, requestID string) {
+	requestBody := model.SendRequestDto{
+		Message: sendMessageDto,
+	}
 	out, err := json.Marshal(requestBody)
 	if err != nil {
-		return err
+		log.Fatalf(err.Error())
 	}
 
 	requestBodyString := string(out)
 	data := strings.NewReader(requestBodyString)
 	req, err := http.NewRequest("POST", URI, data)
 	if err != nil {
-		return err
+		log.Fatalf(err.Error())
 	}
 
 	authorization := getAuthorization(viper.GetString("sms.APIKey"), viper.GetString("sms.APISecret"))
@@ -39,32 +43,38 @@ func SendMessage(requestBody model.RequestBody, alarmResultLog model.AlarmResult
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return err
+		log.Fatalf(err.Error())
 	}
 	defer resp.Body.Close()
 
 	bytes, _ := ioutil.ReadAll(resp.Body)
-	var response model.SendMessageResponseDto
-	if err := json.Unmarshal(bytes, &response); err != nil {
-		return err
+	var successResponse model.SendMessageSuccessResponseDto
+	var failResponse model.SendMessageFailResponseDto
+
+	var isSuccess bool
+	var logMessage string
+
+	if resp.StatusCode != 200 {
+		if err := json.Unmarshal(bytes, &failResponse); err != nil {
+			log.Fatalf(err.Error())
+		}
+		isSuccess = false
+		logMessage = failResponse.ErrorMessage
+		log.Printf("발송 실패 ::: %s", logMessage)
+	} else {
+		if err := json.Unmarshal(bytes, &successResponse); err != nil {
+			log.Fatalf(err.Error())
+		}
+		isSuccess = true
+		logMessage = successResponse.StatusMessage
+		log.Printf("발송 성공 ::: %s", logMessage)
 	}
 
-	for _, logValue := range response.Log {
-		fmt.Println(logValue["message"])
-	}
-
-	fmt.Printf("%v개의 알림발송 시도 중 성공 : %v // 실패 : %v", response.Count.Total, response.Count.RegisteredSuccess, response.Count.RegisteredFailed)
-
-	resultMsg := fmt.Sprintf("%v개의 알림발송 시도 중 성공 : %v // 실패 : %v", response.Count.Total, response.Count.RegisteredSuccess, response.Count.RegisteredFailed)
-	userID := alarmResultLog.UserID
-	traceID := alarmResultLog.TraceID
-
-	err = util.FluentdSender(userID, traceID, resultMsg)
+	err = util.FluentdSender(isSuccess, sendMessageDto.To, requestID, logMessage)
 	if err != nil {
-		return err
+		fmt.Println(err)
 	}
 
-	return nil
 }
 
 func getAuthorization(apiKey string, apiSecret string) string {

@@ -3,6 +3,7 @@ image: docker:19.03.12
 stages:
   - test
   - build
+  - package
   - deploy
 
 variables:
@@ -35,9 +36,8 @@ build-go-application:
     paths:
       - main
 
-
-build-docker-image:
-  stage: build
+package-docker-image:
+  stage: package
   cache:
     key: ${CI_COMMIT_REF_SLUG}-${CI_PIPELINE_ID}
     policy: pull
