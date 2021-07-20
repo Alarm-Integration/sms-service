@@ -13,51 +13,37 @@ func Test_Send_Message_Success(t *testing.T) {
 	defer gock.Off()
 
 	Convey("Given right request body", t, func() {
-		requestBody := model.RequestBody{
-			Messages: []model.SendMessageDto{
-				{
-					To:   "01088350310",
-					From: "01092988726",
-					Text: "test",
-					Type: "SMS",
-				},
-			},
+		requestBody := model.SendMessageDto{
+			To:   "01088350310",
+			From: "01092988726",
+			Text: "test",
+			Type: "SMS",
 		}
-		var logValue []map[string]interface{}
+		requestID := "test_request_id"
 
-		logValue = append(logValue, map[string]interface{}{
-			"message": "메시지 그룹이 생성되었습니다.",
-		})
-		logValue = append(logValue, map[string]interface{}{
-			"message": "단문문자(SMS) 1 건이 추가되었습니다.",
-		})
-		logValue = append(logValue, map[string]interface{}{
-			"message": "메시지를 발송했습니다.",
-		})
-
-		alarmResultLog := model.AlarmResultLogDto{
-			UserID:  1,
-			TraceID: "test",
+		responseBody := model.SendMessageSuccessResponseDto{
+			GroupId:       "test_group_id",
+			MessageId:     "test_message_id",
+			AccountId:     "test_account_id",
+			StatusCode:    "200",
+			StatusMessage: "success",
+			Country:       "82+",
+			Type:          "SMS",
+			To:            "01012341234",
+			From:          "01012341234",
 		}
 
-		responseBody := model.SendMessageResponseDto{
-			Count: model.Count{Total: 1, SentTotal: 0, SentFailed: 0, SentSuccess: 0, SentPending: 0, SentReplacement: 0, Refund: 0, RegisteredFailed: 0, RegisteredSuccess: 1},
-			Log:   logValue,
-		}
 		gock.New("http://api.coolsms.co.kr").
-			Post("/messages/v4/send-many").
+			Post("/messages/v4/send").
 			JSON(requestBody).
 			Reply(200).
 			JSON(responseBody)
 
 		Convey("When sending sms alarm", func() {
-			SendMessage(requestBody, alarmResultLog)
+			SendMessage(requestBody, requestID)
 
 			Convey("Then sms should be alarmed successfully", func() {
-				t.Log("메시지 그룹이 생성되었습니다.")
-				t.Log("단문문자(SMS) 1 건이 추가되었습니다.")
-				t.Log("메시지를 발송했습니다.")
-				t.Log("1개의 알림발송 시도 중 성공 : 1 // 실패 : 0")
+				t.Logf("발송 성공 ::: %s", responseBody.StatusMessage)
 			})
 		})
 	})
@@ -67,52 +53,30 @@ func Test_Send_Message_Fail_By_Wrong_Number(t *testing.T) {
 	defer gock.Off()
 
 	Convey("Given string value at receiver number", t, func() {
-		requestBody := model.RequestBody{
-			Messages: []model.SendMessageDto{
-				{
-					To:   "test",
-					From: "test",
-					Text: "test",
-					Type: "SMS",
-				},
-			},
+		requestBody := model.SendMessageDto{
+			To:   "01088350310",
+			From: "01092988726",
+			Text: "test",
+			Type: "SMS",
 		}
-		var logValue []map[string]interface{}
+		requestID := "test_request_id"
 
-		logValue = append(logValue, map[string]interface{}{
-			"message": "메시지 그룹이 생성되었습니다.",
-		})
-		logValue = append(logValue, map[string]interface{}{
-			"message": "단문문자(SMS) 1 건이 추가되었습니다.",
-		})
-		logValue = append(logValue, map[string]interface{}{
-			"message": "메시지를 발송했습니다.",
-		})
-
-		responseBody := model.SendMessageResponseDto{
-			Count: model.Count{Total: 1, SentTotal: 0, SentFailed: 0, SentSuccess: 0, SentPending: 0, SentReplacement: 0, Refund: 0, RegisteredFailed: 1, RegisteredSuccess: 0},
-			Log:   logValue,
-		}
-
-		alarmResultLog := model.AlarmResultLogDto{
-			UserID:  1,
-			TraceID: "test",
+		responseBody := model.SendMessageFailResponseDto{
+			ErrorCode:    "400",
+			ErrorMessage: "ValidationError",
 		}
 
 		gock.New("http://api.coolsms.co.kr").
-			Post("/messages/v4/send-many").
+			Post("/messages/v4/send").
 			JSON(requestBody).
 			Reply(400).
 			JSON(responseBody)
 
 		Convey("When sending sms alarm", func() {
-			SendMessage(requestBody, alarmResultLog)
+			SendMessage(requestBody, requestID)
 
 			Convey("Then sms alarm should be failed", func() {
-				t.Log("메시지 그룹이 생성되었습니다.")
-				t.Log("단문문자(SMS) 1 건이 추가되었습니다.")
-				t.Log("메시지를 발송했습니다.")
-				t.Log("1개의 알림발송 시도 중 성공 : 0 // 실패 : 1")
+				t.Logf("발송 실패 ::: %s", responseBody.ErrorMessage)
 			})
 		})
 	})

@@ -21,7 +21,9 @@ import (
 const URI string = "http://api.coolsms.co.kr/messages/v4/send"
 
 func SendMessage(sendMessageDto model.SendMessageDto, requestID string) {
-	requestBody := model.SendRequestDto{Message: sendMessageDto}
+	requestBody := model.SendRequestDto{
+		Message: sendMessageDto,
+	}
 	out, err := json.Marshal(requestBody)
 	if err != nil {
 		log.Fatalf(err.Error())
@@ -46,7 +48,7 @@ func SendMessage(sendMessageDto model.SendMessageDto, requestID string) {
 	defer resp.Body.Close()
 
 	bytes, _ := ioutil.ReadAll(resp.Body)
-	var successResponse model.SendMessageResponseDto
+	var successResponse model.SendMessageSuccessResponseDto
 	var failResponse model.SendMessageFailResponseDto
 
 	var isSuccess bool

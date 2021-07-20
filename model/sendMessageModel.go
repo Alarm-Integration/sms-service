@@ -36,7 +36,7 @@ type TopicMessageDto struct {
 	Addresses []string `json:"addresses"`
 }
 
-type SendMessageResponseDto struct {
+type SendMessageSuccessResponseDto struct {
 	GroupId       string
 	MessageId     string
 	AccountId     string
