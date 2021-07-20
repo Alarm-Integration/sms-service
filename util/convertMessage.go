@@ -7,14 +7,14 @@ import (
 	"github.com/GreatLaboratory/go-sms/model"
 )
 
-func ConvertByteToDtoList(byteValue []byte) (model.RequestBody, model.AlarmResultLogDto, error) {
+func ConvertByteToDtoList(byteValue []byte) (model.RequestBody, string, error) {
 	var requestBody model.RequestBody
-	var alarmResultLog model.AlarmResultLogDto
+	var requestId string
 	var sendMessageDataList []model.SendMessageDto
 	var topicMessageDto model.TopicMessageDto
 
 	if err := json.Unmarshal(byteValue, &topicMessageDto); err != nil {
-		return requestBody, alarmResultLog, err
+		return requestBody, requestId, err
 	}
 
 	text := fmt.Sprintf("%s\n%s", topicMessageDto.Title, topicMessageDto.Content)
@@ -24,9 +24,9 @@ func ConvertByteToDtoList(byteValue []byte) (model.RequestBody, model.AlarmResul
 	} else {
 		messageType = model.LMS.String()
 	}
-	for _, receiver := range topicMessageDto.Receivers {
+	for _, address := range topicMessageDto.Addresses {
 		sendMessageData := model.SendMessageDto{
-			To:   receiver,
+			To:   address,
 			From: "01092988726",
 			Text: text,
 			Type: messageType,
@@ -39,15 +39,12 @@ func ConvertByteToDtoList(byteValue []byte) (model.RequestBody, model.AlarmResul
 	fmt.Println("content : ", topicMessageDto.Content)
 	fmt.Println("traceId : ", topicMessageDto.TraceID)
 	fmt.Println("userId : ", topicMessageDto.UserID)
-	for i, v := range topicMessageDto.Receivers {
-		fmt.Println("receiver", i, " : ", v)
+	for i, v := range topicMessageDto.Addresses {
+		fmt.Println("address", i, " : ", v)
 	}
 	fmt.Println("=====================================================")
 
 	requestBody.Messages = sendMessageDataList
-	alarmResultLog = model.AlarmResultLogDto{
-		UserID:  topicMessageDto.UserID,
-		TraceID: topicMessageDto.TraceID,
-	}
-	return requestBody, alarmResultLog, nil
+	requestId = topicMessageDto.TraceID
+	return requestBody, requestId, nil
 }

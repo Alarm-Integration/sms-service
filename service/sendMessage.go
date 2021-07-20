@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/GreatLaboratory/go-sms/util"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -17,21 +18,26 @@ import (
 	"github.com/spf13/viper"
 )
 
-const URI string = "http://api.coolsms.co.kr/messages/v4/send-many"
+const URI string = "http://api.coolsms.co.kr/messages/v4/send"
 
-func SendMessage(requestBody model.RequestBody, alarmResultLog model.AlarmResultLogDto) error {
-	out, err := json.Marshal(requestBody)
+func SendMessage(requestBody model.SendMessageDto, requestID string) {
+	fmt.Println("###########", requestBody.To)
+	fmt.Println("###########", requestBody.From)
+	fmt.Println("###########", requestBody.Text)
+	fmt.Println("###########", requestBody.Type)
+	realRequestBody := model.SendRequestDto{Message: requestBody}
+	out, err := json.Marshal(realRequestBody)
 	if err != nil {
-		return err
+		log.Fatalf(err.Error())
 	}
 
 	requestBodyString := string(out)
+	fmt.Println("requestBodyString ::: ", requestBodyString)
 	data := strings.NewReader(requestBodyString)
 	req, err := http.NewRequest("POST", URI, data)
 	if err != nil {
-		return err
+		log.Fatalf(err.Error())
 	}
-
 	authorization := getAuthorization(viper.GetString("sms.APIKey"), viper.GetString("sms.APISecret"))
 	req.Header.Set("Authorization", authorization)
 	req.Header.Set("Content-Type", "application/json")
@@ -39,32 +45,44 @@ func SendMessage(requestBody model.RequestBody, alarmResultLog model.AlarmResult
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return err
+		log.Fatalf(err.Error())
 	}
 	defer resp.Body.Close()
 
 	bytes, _ := ioutil.ReadAll(resp.Body)
-	var response model.SendMessageResponseDto
-	if err := json.Unmarshal(bytes, &response); err != nil {
-		return err
+	var successResponse model.SendMessageResponseDto
+	var failResponse model.SendMessageFailResponseDto
+
+	var isSuccess bool
+	var logMessage string
+
+	if resp.StatusCode != 200 {
+		if err := json.Unmarshal(bytes, &failResponse); err != nil {
+			log.Fatalf(err.Error())
+		}
+		str := fmt.Sprintf("%#v", failResponse)
+		fmt.Println("################", str)
+
+		isSuccess = false
+		logMessage = failResponse.ErrorCode
+
+		log.Printf("발송 실패 ::: %s", logMessage)
+	} else {
+		if err := json.Unmarshal(bytes, &successResponse); err != nil {
+			log.Fatalf(err.Error())
+		}
+		str := fmt.Sprintf("%#v", successResponse)
+		fmt.Println("################", str)
+
+		isSuccess = true
+		logMessage = successResponse.StatusMessage
+		log.Printf("발송 성공 ::: %s", logMessage)
 	}
 
-	for _, logValue := range response.Log {
-		fmt.Println(logValue["message"])
-	}
-
-	fmt.Printf("%v개의 알림발송 시도 중 성공 : %v // 실패 : %v", response.Count.Total, response.Count.RegisteredSuccess, response.Count.RegisteredFailed)
-
-	resultMsg := fmt.Sprintf("%v개의 알림발송 시도 중 성공 : %v // 실패 : %v", response.Count.Total, response.Count.RegisteredSuccess, response.Count.RegisteredFailed)
-	userID := alarmResultLog.UserID
-	traceID := alarmResultLog.TraceID
-
-	err = util.FluentdSender(userID, traceID, resultMsg)
+	err = util.FluentdSender(isSuccess, requestBody.To, requestID, logMessage)
 	if err != nil {
-		return err
+		log.Fatalf(err.Error())
 	}
-
-	return nil
 }
 
 func getAuthorization(apiKey string, apiSecret string) string {

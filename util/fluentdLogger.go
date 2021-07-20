@@ -5,10 +5,10 @@ import (
 	"github.com/spf13/viper"
 )
 
-const Tag string = "alarm.access"
+const Tag string = "alarm.result.access"
 const FluentdPort int = 24224
 
-func FluentdSender(userID int, traceID, resultMsg string) error {
+func FluentdSender(isSuccess bool, address, requestID, logMessage string) error {
 	logger, err := createLogger()
 	if err != nil {
 		return err
@@ -16,10 +16,11 @@ func FluentdSender(userID int, traceID, resultMsg string) error {
 	defer logger.Close()
 
 	var data = map[string]interface{}{
-		"user_id":    userID,
-		"trace_id":   traceID,
-		"app_name":   "sms",
-		"result_msg": resultMsg,
+		"request_id":  requestID,
+		"app_name":    "sms",
+		"log_message": logMessage,
+		"is_success":  isSuccess,
+		"address":     address,
 	}
 	err = send(logger, data)
 	if err != nil {
