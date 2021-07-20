@@ -54,7 +54,7 @@ func Test_Send_Message_Fail_By_Wrong_Number(t *testing.T) {
 
 	Convey("Given string value at receiver number", t, func() {
 		requestBody := model.SendMessageDto{
-			To:   "01088350310",
+			To:   "test",
 			From: "01092988726",
 			Text: "test",
 			Type: "SMS",

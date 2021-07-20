@@ -59,7 +59,7 @@ func SendMessage(sendMessageDto model.SendMessageDto, requestID string) {
 			log.Fatalf(err.Error())
 		}
 		isSuccess = false
-		logMessage = failResponse.ErrorCode
+		logMessage = failResponse.ErrorMessage
 		log.Printf("발송 실패 ::: %s", logMessage)
 	} else {
 		if err := json.Unmarshal(bytes, &successResponse); err != nil {
@@ -72,7 +72,7 @@ func SendMessage(sendMessageDto model.SendMessageDto, requestID string) {
 
 	err = util.FluentdSender(isSuccess, sendMessageDto.To, requestID, logMessage)
 	if err != nil {
-		log.Fatalf(err.Error())
+		fmt.Println(err)
 	}
 
 }
