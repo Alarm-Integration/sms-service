@@ -14,11 +14,11 @@ test:
   image: golang:1.16
   stage: test
   script:
-    - go test -v -coverprofile=coverage.out ./...
-    - go tool cover -func=coverage.out
+    - go test $(go list ./... | grep -v /vendor/) -v -coverprofile=testCoverage.txt
+    - go tool cover -func=testCoverage.txt
   artifacts:
     paths:
-      - coverage.out
+      - testCoverage.txt
 
 build-go-application:
   image: golang:1.16
