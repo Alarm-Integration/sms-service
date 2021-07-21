@@ -18,7 +18,7 @@ test:
     - go tool cover -func=testCoverage.txt
   artifacts:
     paths:
-      - coverage.out
+      - testCoverage.txt
 
 build-go-application:
   image: golang:1.16
