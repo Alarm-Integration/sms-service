@@ -52,3 +52,10 @@ type SendMessageFailResponseDto struct {
 	ErrorCode    string
 	ErrorMessage string
 }
+
+type ResultLogDto struct {
+	IsSuccess  bool
+	Address    string
+	RequestID  string
+	LogMessage string
+}

@@ -3,6 +3,7 @@ package controller
 import (
 	"errors"
 	"fmt"
+	"github.com/GreatLaboratory/go-sms/model"
 
 	smsService "github.com/GreatLaboratory/go-sms/service"
 	"github.com/GreatLaboratory/go-sms/util"
@@ -12,6 +13,7 @@ import (
 var (
 	createClientErr   = errors.New("[Kafka] consumer create failed")
 	subscribeTopicErr = errors.New("[Kafka] consumer topic subscribe failed")
+	ch                = make(chan *model.ResultLogDto)
 )
 
 func ConnectKafkaConsumer(config *kafka.ConfigMap, topics []string) error {
@@ -43,6 +45,13 @@ func ConnectKafkaConsumer(config *kafka.ConfigMap, topics []string) error {
 		}
 		for _, sendMessageDto := range requestBody.Messages {
 			go smsService.SendMessage(sendMessageDto, requestID)
+		}
+		for range requestBody.Messages {
+			resultLog := <-ch
+			err = util.FluentdSender(resultLog.IsSuccess, resultLog.Address, resultLog.RequestID, resultLog.LogMessage)
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 		if err != nil {
 			fmt.Println("[SMS] Send Error : ", err)
