@@ -13,20 +13,24 @@ func Test_Send_Message_Success(t *testing.T) {
 	defer gock.Off()
 
 	Convey("Given right request body", t, func() {
+		requestID := "test_request_id"
+		address := "01088350310"
+		isSuccess := true
+		logMessage := "send sms alarm success"
+
 		requestBody := model.SendMessageDto{
-			To:   "01088350310",
+			To:   address,
 			From: "01092988726",
 			Text: "test",
 			Type: "SMS",
 		}
-		requestID := "test_request_id"
 
 		responseBody := model.SendMessageSuccessResponseDto{
 			GroupId:       "test_group_id",
 			MessageId:     "test_message_id",
 			AccountId:     "test_account_id",
 			StatusCode:    "200",
-			StatusMessage: "success",
+			StatusMessage: logMessage,
 			Country:       "82+",
 			Type:          "SMS",
 			To:            "01012341234",
@@ -40,10 +44,16 @@ func Test_Send_Message_Success(t *testing.T) {
 			JSON(responseBody)
 
 		Convey("When sending sms alarm", func() {
-			SendMessage(requestBody, requestID)
+			go SendMessage(requestBody, requestID)
+			resultLog := <-CH
+			fmt.Println("#@@#@#@##@@#", resultLog.LogMessage)
 
 			Convey("Then sms should be alarmed successfully", func() {
 				t.Logf("발송 성공 ::: %s", responseBody.StatusMessage)
+				So(resultLog.IsSuccess, ShouldEqual, isSuccess)
+				So(resultLog.RequestID, ShouldEqual, requestID)
+				So(resultLog.Address, ShouldEqual, address)
+				So(resultLog.LogMessage, ShouldEqual, logMessage)
 			})
 		})
 	})
@@ -53,13 +63,17 @@ func Test_Send_Message_Fail_By_Wrong_Number(t *testing.T) {
 	defer gock.Off()
 
 	Convey("Given string value at receiver number", t, func() {
+		requestID := "test_request_id"
+		address := "01088350310"
+		isSuccess := false
+		logMessage := "ValidationError"
+
 		requestBody := model.SendMessageDto{
-			To:   "test",
+			To:   address,
 			From: "01092988726",
 			Text: "test",
 			Type: "SMS",
 		}
-		requestID := "test_request_id"
 
 		responseBody := model.SendMessageFailResponseDto{
 			ErrorCode:    "400",
@@ -73,10 +87,15 @@ func Test_Send_Message_Fail_By_Wrong_Number(t *testing.T) {
 			JSON(responseBody)
 
 		Convey("When sending sms alarm", func() {
-			SendMessage(requestBody, requestID)
+			go SendMessage(requestBody, requestID)
+			resultLog := <-CH
 
 			Convey("Then sms alarm should be failed", func() {
 				t.Logf("발송 실패 ::: %s", responseBody.ErrorMessage)
+				So(resultLog.IsSuccess, ShouldEqual, isSuccess)
+				So(resultLog.RequestID, ShouldEqual, requestID)
+				So(resultLog.Address, ShouldEqual, address)
+				So(resultLog.LogMessage, ShouldEqual, logMessage)
 			})
 		})
 	})

@@ -3,7 +3,6 @@ package controller
 import (
 	"errors"
 	"fmt"
-
 	smsService "github.com/GreatLaboratory/go-sms/service"
 	"github.com/GreatLaboratory/go-sms/util"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
@@ -43,6 +42,13 @@ func ConnectKafkaConsumer(config *kafka.ConfigMap, topics []string) error {
 		}
 		for _, sendMessageDto := range requestBody.Messages {
 			go smsService.SendMessage(sendMessageDto, requestID)
+		}
+		for range requestBody.Messages {
+			resultLog := <-smsService.CH
+			err = util.FluentdSender(resultLog.IsSuccess, resultLog.Address, resultLog.RequestID, resultLog.LogMessage)
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 		if err != nil {
 			fmt.Println("[SMS] Send Error : ", err)

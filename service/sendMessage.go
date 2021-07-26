@@ -7,7 +7,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/GreatLaboratory/go-sms/util"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -19,6 +18,8 @@ import (
 )
 
 const URI string = "http://api.coolsms.co.kr/messages/v4/send"
+
+var CH = make(chan *model.ResultLogDto)
 
 func SendMessage(sendMessageDto model.SendMessageDto, requestID string) {
 	requestBody := model.SendRequestDto{
@@ -70,9 +71,11 @@ func SendMessage(sendMessageDto model.SendMessageDto, requestID string) {
 		log.Printf("발송 성공 ::: %s", logMessage)
 	}
 
-	err = util.FluentdSender(isSuccess, sendMessageDto.To, requestID, logMessage)
-	if err != nil {
-		fmt.Println(err)
+	CH <- &model.ResultLogDto{
+		IsSuccess:  isSuccess,
+		Address:    sendMessageDto.To,
+		RequestID:  requestID,
+		LogMessage: logMessage,
 	}
 
 }

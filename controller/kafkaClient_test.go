@@ -27,7 +27,7 @@ func Test_Connect_Kafka_Consumer_Fail_By_Subscribe_Error(t *testing.T) {
 
 	Convey("Given no groupId to kafka server", t, func() {
 		config := &kafka.ConfigMap{
-			"bootstrap.servers": "http://kafka-server:9092/",
+			"bootstrap.servers": "139.150.75.239:19092/",
 			"group.id":          "",
 			"auto.offset.reset": "earliest",
 		}
