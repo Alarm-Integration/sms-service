@@ -19,7 +19,7 @@ import (
 
 const URI string = "http://api.coolsms.co.kr/messages/v4/send"
 
-var ch = make(chan *model.ResultLogDto)
+var CH = make(chan *model.ResultLogDto)
 
 func SendMessage(sendMessageDto model.SendMessageDto, requestID string) {
 	requestBody := model.SendRequestDto{
@@ -71,7 +71,7 @@ func SendMessage(sendMessageDto model.SendMessageDto, requestID string) {
 		log.Printf("발송 성공 ::: %s", logMessage)
 	}
 
-	ch <- &model.ResultLogDto{
+	CH <- &model.ResultLogDto{
 		IsSuccess:  isSuccess,
 		Address:    sendMessageDto.To,
 		RequestID:  requestID,
