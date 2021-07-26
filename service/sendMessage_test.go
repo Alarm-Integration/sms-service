@@ -45,7 +45,7 @@ func Test_Send_Message_Success(t *testing.T) {
 
 		Convey("When sending sms alarm", func() {
 			go SendMessage(requestBody, requestID)
-			resultLog := <-ch
+			resultLog := <-CH
 			fmt.Println("#@@#@#@##@@#", resultLog.LogMessage)
 
 			Convey("Then sms should be alarmed successfully", func() {
@@ -88,7 +88,7 @@ func Test_Send_Message_Fail_By_Wrong_Number(t *testing.T) {
 
 		Convey("When sending sms alarm", func() {
 			go SendMessage(requestBody, requestID)
-			resultLog := <-ch
+			resultLog := <-CH
 
 			Convey("Then sms alarm should be failed", func() {
 				t.Logf("발송 실패 ::: %s", responseBody.ErrorMessage)
